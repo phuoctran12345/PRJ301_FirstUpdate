@@ -1,0 +1,294 @@
+/* Light Mode mặc định */
+body {
+    background-color: #e5e5e5; /* Nền xám nhạt cho Light Mode */
+    color: #333333; /* Chữ tối trong Light Mode */
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.container,
+.admin-container {
+    background-color: #ffffff;
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    box-sizing: border-box;
+    transition: background-color 0.3s ease;
+}
+
+.pos_page,
+.admin-page {
+    background-color: transparent;
+}
+
+.footer_area,
+.admin-footer {
+    background-color: #ffffff;
+    color: #000000;
+}
+
+.footer_area h3,
+.footer_area p,
+.footer_area ul li a,
+.admin-footer h3,
+.admin-footer p,
+.admin-footer ul li a {
+    color: #000000;
+}
+
+.footer_area ul li a:hover,
+.admin-footer ul li a:hover {
+    color: #018576;
+}
+
+.sidebar_widget,
+.admin-sidebar {
+    background-color: #ffffff;
+    color: #333333;
+}
+
+/* Admin-specific Light Mode */
+.app-header {
+    background-color: #ffffff;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    padding: 10px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid #e0e0e0;
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+.app-sidebar__toggle {
+    color: #333333;
+    font-size: 20px;
+    padding: 8px 12px;
+    border-radius: 5px;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.app-sidebar__toggle:hover {
+    background-color: #f0f0f0;
+    color: #018576;
+}
+
+.app-nav {
+    display: flex;
+    align-items: center;
+    gap: 10px; /* Khoảng cách giữa các nút */
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.app-nav__item,
+.theme-toggle-btn {
+    background-color: #f0f0f0;
+    color: #333333;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 20px; /* Bo góc mạnh hơn cho nút */
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px; /* Khoảng cách giữa icon và text */
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.app-nav__item:hover,
+.theme-toggle-btn:hover {
+    background-color: #018576;
+    color: #ffffff;
+}
+
+.theme-toggle-btn:focus,
+.app-nav__item:focus {
+    outline: 2px solid #018576;
+    outline-offset: 2px;
+}
+
+.theme-icon {
+    font-size: 16px;
+}
+
+.nav-text {
+    font-size: 14px;
+}
+
+.app-sidebar {
+    background-color: #ffffff;
+    width: 250px; /* Đảm bảo sidebar có chiều rộng cố định */
+    height: 100vh;
+    position: fixed;
+    top: 0;
+    left: 0;
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.3s ease;
+}
+
+.app-sidebar__user {
+    background-color: #f8f9fa;
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    transition: background-color 0.3s ease;
+}
+
+.app-sidebar__user-avatar {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.app-sidebar__user-name {
+    color: #333333;
+    font-size: 16px;
+    margin: 0;
+transition: color 0.3s ease;
+}
+
+.app-sidebar__user-designation {
+    color: #666666;
+    font-size: 14px;
+    margin: 0;
+    transition: color 0.3s ease;
+}
+
+.app-menu {
+    padding: 10px 0;
+    list-style: none;
+}
+
+.app-menu__item {
+    display: flex;
+    align-items: center;
+    padding: 12px 20px;
+    color: #333333;
+    font-size: 15px;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.app-menu__item:hover,
+.app-menu__item.active {
+    background-color: #018576;
+    color: #ffffff;
+}
+
+.app-menu__icon {
+    margin-right: 10px;
+    font-size: 18px;
+}
+
+.app-menu__label {
+    flex: 1;
+}
+
+/* Dark Mode cho toàn bộ trang (bao gồm admin) */
+body.dark-mode {
+    background-color: #222222;
+    color: #ffffff;
+}
+
+/* Container và các khu vực chính (bao gồm admin) */
+body.dark-mode .container,
+body.dark-mode .admin-container,
+body.dark-mode .pos_page,
+body.dark-mode .admin-page,
+body.dark-mode .new_product_area,
+body.dark-mode .featured_product,
+body.dark-mode .banner_area,
+body.dark-mode .brand_logo,
+body.dark-mode .admin-content {
+    background-color: #222222 !important;
+}
+
+body.dark-mode .pos_page_inner,
+body.dark-mode .admin-content-inner {
+    background-color: transparent;
+}
+
+/* Header và Navigation (bao gồm admin) */
+body.dark-mode .header_area,
+body.dark-mode .app-header,
+body.dark-mode .footer_area,
+body.dark-mode .admin-footer {
+    background-color: #222222;
+    border-bottom: 1px solid #444444;
+}
+
+body.dark-mode .app-sidebar__toggle {
+    color: #ffffff;
+}
+
+body.dark-mode .app-sidebar__toggle:hover {
+    background-color: #333333;
+    color: #018576;
+}
+
+body.dark-mode .main_menu,
+body.dark-mode .app-nav {
+    background-color: #222222;
+}
+
+body.dark-mode .main_menu nav > ul > li > a,
+body.dark-mode .app-menu__item,
+body.dark-mode .app-nav__item,
+body.dark-mode .theme-toggle-btn {
+    color: #ffffff;
+}
+
+body.dark-mode .app-nav__item,
+body.dark-mode .theme-toggle-btn {
+    background-color: #333333;
+}
+
+body.dark-mode .app-nav__item:hover,
+body.dark-mode .theme-toggle-btn:hover {
+    background-color: #018576;
+    color: #ffffff;
+}
+
+/* Sidebar (bao gồm admin sidebar) */
+body.dark-mode .sidebar_widget,
+body.dark-mode .app-sidebar {
+    background-color: #2c2c2c;
+    color: #ffffff;
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.3);
+}
+
+body.dark-mode .app-sidebar__user {
+    background-color: #333333;
+}
+
+body.dark-mode .app-sidebar__user-name {
+    color: #ffffff;
+}
+
+body.dark-mode .app-sidebar__user-designation {
+    color: #cccccc;
+}
+
+body.dark-mode .app-menu__item {
+    color: #ffffff;
+}
+
+body.dark-mode .app-menu__item:hover,
+body.dark-mode .app-menu__item.active {
+    background-color: #018576;
+    color: #ffffff;
+}
+
+body.dark-mode .sidebar_widget h3,
+body.dark-mode .sidebar_widget ul li a,
+body.dark-mode .app-sidebar h3,
+body.dark-mode .app-sidebar ul li a {
+    color: #ffffff;
+}
+
+body.dark-mode .sidebar_widget ul li a:hover,
+body.dark-mode .app-sidebar ul li a:hover {
+    color: #cccccc;
+}
