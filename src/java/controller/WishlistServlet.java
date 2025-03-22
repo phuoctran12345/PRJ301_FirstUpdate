@@ -18,14 +18,14 @@ import java.util.List;
 public class WishlistServlet extends HttpServlet {
 
     private static final String WISHLIST_PAGE = "view/jsp/home/wishlist.jsp";
-    private static final String WISHLIST_AJAX = "view/jsp/home/wishlist.jsp";
+    
 
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
 
         // Default URL is for AJAX requests
-        String destination = WISHLIST_AJAX;
+        String destination = WISHLIST_PAGE;
 
         // Initialize tools and variables
         ProductDAO productDAO = new ProductDAO();

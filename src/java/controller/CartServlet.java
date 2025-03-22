@@ -29,8 +29,7 @@ public class CartServlet extends HttpServlet {
 
     private static final String DISPATCHSERVLET = "DispatchServlet";  // Không sử dụng
     private static final String CART_PAGE = "view/jsp/home/cart.jsp";  // Trang giỏ hàng
-    private static final String CART_AJAX = "view/jsp/home/cart.jsp";  // AJAX cho giỏ hàng
-    private static final String CART_PAGE_AJAX = "view/jsp/home/cart.jsp";  // AJAX cho trang giỏ hàng
+    
 
     /**
      * Phương thức xử lý yêu cầu từ người dùng
@@ -38,7 +37,7 @@ public class CartServlet extends HttpServlet {
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
-        String url = CART_AJAX;  // Mặc định trả về trang AJAX cho giỏ hàng
+        String url = CART_PAGE;  // Mặc định trả về trang AJAX cho giỏ hàng
         ProductDAO pDao = new ProductDAO();  // Khởi tạo đối tượng DAO sản phẩm
         CartUtil cartUtil = new CartUtil();  // Khởi tạo công cụ giỏ hàng
         List<CartItem> carts = null;
@@ -88,9 +87,9 @@ public class CartServlet extends HttpServlet {
                     String curPage = request.getParameter("curPage");  // Lấy trang hiện tại
                     // Xác định trang cần trả về dựa trên curPage
                     if ("cart.jsp".equals(curPage)) {
-                        url = CART_PAGE_AJAX;  // Nếu là trang cart.jsp, trả về AJAX cho giỏ hàng
+                        url = CART_PAGE;  // Nếu là trang cart.jsp, trả về AJAX cho giỏ hàng
                     } else if ("header.jsp".equals(curPage)) {
-                        url = CART_AJAX;  // Nếu là header.jsp, trả về AJAX cho giỏ hàng
+                        url = CART_PAGE;  // Nếu là header.jsp, trả về AJAX cho giỏ hàng
                     }
 
                     // Xóa sản phẩm khỏi giỏ hàng
@@ -98,7 +97,7 @@ public class CartServlet extends HttpServlet {
                 } 
                 // Nếu hành động là "Update" (Cập nhật giỏ hàng)
                 else if ("Update".equals(action)) {
-                    url = CART_PAGE_AJAX;  // Trả về trang AJAX cho giỏ hàng
+                    url = CART_PAGE;  // Trả về trang AJAX cho giỏ hàng
                     String quantity = request.getParameter("quantity");  // Lấy số lượng mới
                     CartItem item = new CartItem(product, Integer.parseInt(quantity));  // Tạo đối tượng CartItem mới
                     listItem = cartUtil.updateItemToCart(item);  // Cập nhật giỏ hàng

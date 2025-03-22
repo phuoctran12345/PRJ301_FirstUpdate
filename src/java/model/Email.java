@@ -87,17 +87,31 @@ public class Email {
                 "<p>Nếu cần hỗ trợ gấp, vui lòng gọi hotline: 1900 9090</p>");
     }
     
-    public String messageNewOrder(String name, int quantity, double total) {
-        return createEmailTemplate("Đặt hàng thành công",
-                "<p>Chào " + name + ",</p>" +
-                "<p>Đơn hàng của bạn đã được xác nhận thành công.</p>" +
-                "<p>Chi tiết đơn hàng:</p>" +
-                "<ul>" +
-                "<li>Số lượng sản phẩm: <strong>" + quantity + "</strong></li>" +
-                "<li>Tổng tiền: <strong>" + String.format("%,.0f", total) + " VNĐ</strong></li>" +
-                "</ul>" +
-                "<p>Thời gian giao hàng dự kiến: 3-7 ngày</p>");
-    }
+//    public String messageNewOrder(String name, int quantity, double total) {
+//        return createEmailTemplate("Đặt hàng thành công",
+//                "<p>Chào " + name + ",</p>" +
+//                "<p>Đơn hàng của bạn đã được xác nhận thành công.</p>" +
+//                "<p>Chi tiết đơn hàng:</p>" +
+//                "<ul>" +
+//                "<li>Số lượng sản phẩm: <strong>" + quantity + "</strong></li>" +
+//                "<li>Tổng tiền: <strong>" + String.format("%,.0f", total) + " VNĐ</strong></li>" +
+//                "</ul>" +
+//                "<p>Thời gian giao hàng dự kiến: 3-7 ngày</p>");
+//    }
+public String messageNewOrder(String name, int quantity, double total) {
+    // Format total price with thousands separator
+    String formattedTotal = String.format("%,.0f", total);
+    
+    return createEmailTemplate("Đặt hàng thành công",
+            "<p>Chào " + name + ",</p>" +
+            "<p>Đơn hàng của bạn đã được xác nhận thành công.</p>" +
+            "<p>Chi tiết đơn hàng:</p>" +
+            "<ul>" +
+            "<li>Số lượng sản phẩm: <strong>" + quantity + "</strong></li>" +
+            "<li>Tổng tiền: <strong>" + formattedTotal + " VNĐ</strong></li>" +
+            "</ul>" +
+            "<p>Thời gian giao hàng dự kiến: 3-7 ngày</p>");
+}
 
     public String messageFogot(String name, int code) {
         return createEmailTemplate("Mã xác nhận khôi phục mật khẩu",
