@@ -1,5 +1,6 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
 <%
     int totalProducts = request.getAttribute("LISTPRODUCTS") != null ? ((java.util.List) request.getAttribute("LISTPRODUCTS")).size() : 0;
     int pageSize = 10;
@@ -95,7 +96,9 @@
                                                 <td>${p.id}</td>
                                                 <td>${p.category.name}</td>
                                                 <td>${p.name}</td>
-                                                <td>${p.price}</td>
+                                                <td>
+                                                    <fmt:formatNumber value="${p.price * (1 - p.discount)}" type="number" maxFractionDigits="2" minFractionDigits="2"/>
+                                                </td>
                                                 <td>
                                                     <c:forEach items="${p.size}" var="s" varStatus="loop">
                                                         ${s}<c:if test="${not loop.last}">,</c:if>

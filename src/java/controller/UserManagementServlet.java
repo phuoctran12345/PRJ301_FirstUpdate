@@ -1,117 +1,109 @@
+//
+// Source code recreated from a .class file by IntelliJ IDEA
+// (powered by FernFlower decompiler)
+//
+
 package controller;
 
 import dao.UserDAO;
-import model.UserDTO;
-import java.io.IOException;
-import java.sql.SQLException;
-import java.util.Arrays;
-import java.util.List;
-import java.util.regex.Pattern;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.sql.SQLException;
+import java.util.Arrays;
+import java.util.List;
+import model.UserDTO;
 
-@WebServlet(name = "UserManagementServlet", urlPatterns = {"/UserManagementServlet"})
+@WebServlet(
+    name = "UserManagementServlet",
+    urlPatterns = {"/UserManagementServlet"}
+)
 public class UserManagementServlet extends HttpServlet {
-
     private static final String MANAGE_USER_PAGE = "view/jsp/admin/admin_users.jsp";
     private static final String INSERT_USER_PAGE = "view/jsp/admin/admin_user_insert.jsp";
     private static final String EDIT_USER_PAGE = "view/jsp/admin/admin_edit_user.jsp";
     private static final String UPLOAD_DIR = "view/assets/home/img/users/";
 
-    // Regex patterns for validation
-    private static final String EMAIL_PATTERN = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$";
-    private static final String PHONE_PATTERN = "^[0-9]{10}$"; // Assumes 10-digit phone number
-
-    private boolean isValidEmail(String email) {
-        return Pattern.matches(EMAIL_PATTERN, email);
+    public UserManagementServlet() {
     }
 
-    private boolean isValidPhone(String phone) {
-        return Pattern.matches(PHONE_PATTERN, phone);
-    }
-
-    protected void processRequest(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
+    protected void processRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
         request.setCharacterEncoding("UTF-8");
-        String url = MANAGE_USER_PAGE;
+        String url = "view/jsp/admin/admin_users.jsp";
         String action = request.getParameter("action");
 
         try {
             UserDAO userDao = new UserDAO();
-
-             if ("Insert".equals(action)) {
-                url = showInsertUserPage(request);
+            if ("Insert".equals(action)) {
+                url = this.showInsertUserPage(request);
             } else if ("Edit".equals(action)) {
-                url = showEditUserPage(request, userDao);
+                url = this.showEditUserPage(request, userDao);
             } else if ("Update".equals(action)) {
-                url = updateUser(request, userDao);
+                url = this.updateUser(request, userDao);
             } else if ("Delete".equals(action)) {
-                url = deleteUser(request, userDao);
+                url = this.deleteUser(request, userDao);
             } else if ("InsertUser".equals(action)) {
-                url = insertNewUser(request, userDao);
-            } else if ("Search".equals(action)) {  // Add search action
-                url = searchUsers(request, userDao);
-            } else if ("Restore".equals(action)) {  // Thêm action Restore
-                url = restoreUser(request, userDao);
-            } else if ("PermanentlyDelete".equals(action)) {  // Thêm action PermanentlyDelete
-                url = permanentlyDeleteUser(request, userDao);
+                url = this.insertNewUser(request, userDao);
+            } else if ("Search".equals(action)) {
+                url = this.searchUsers(request, userDao);
+            } else if ("Restore".equals(action)) {
+                url = this.restoreUser(request, userDao);
+            } else if ("PermanentlyDelete".equals(action)) {
+                url = this.permanentlyDeleteUser(request, userDao);
             } else {
-                url = showUserList(request, userDao);
+                url = this.showUserList(request, userDao);
             }
-
         } catch (Exception ex) {
-            log("UserManagementServlet error: " + ex.getMessage());
+            this.log("UserManagementServlet error: " + ex.getMessage());
             request.setAttribute("error", "Đã xảy ra lỗi: " + ex.getMessage());
         } finally {
             request.getRequestDispatcher(url).forward(request, response);
         }
+
     }
 
-    private String showUserList(HttpServletRequest request, UserDAO userDao)
-            throws ServletException, IOException, SQLException {
+    private String showUserList(HttpServletRequest request, UserDAO userDao) throws SQLException {
         List<UserDTO> userList = userDao.getData();
         request.setAttribute("LISTUSERS", userList);
         request.setAttribute("CURRENTSERVLET", "User");
-        return MANAGE_USER_PAGE;
+        return "view/jsp/admin/admin_users.jsp";
     }
 
-    private String showInsertUserPage(HttpServletRequest request)
-            throws ServletException, IOException {
-        return INSERT_USER_PAGE;
+    private String showInsertUserPage(HttpServletRequest request) {
+        return "view/jsp/admin/admin_user_insert.jsp";
     }
 
-    private String showEditUserPage(HttpServletRequest request, UserDAO userDao)
-            throws ServletException, IOException, SQLException {
+    private String showEditUserPage(HttpServletRequest request, UserDAO userDao) throws SQLException {
         String username = request.getParameter("username");
         UserDTO user = userDao.getUserByName(username);
-        request.setAttribute("username", user.getUserName());
-        request.setAttribute("firstname", user.getFirstName());
-        request.setAttribute("lastname", user.getLastName());
-        request.setAttribute("phone", user.getPhone());
-        request.setAttribute("roleid", user.getRoleID());
-        request.setAttribute("address", user.getAddress());
-        request.setAttribute("email", user.getEmail());
-        request.setAttribute("avatar", user.getAvatar());
-        return EDIT_USER_PAGE;
+        if (user == null) {
+            request.setAttribute("error", "Không tìm thấy người dùng!");
+            return this.showUserList(request, userDao);
+        } else {
+            request.setAttribute("username", user.getUserName());
+            request.setAttribute("firstname", user.getFirstName());
+            request.setAttribute("lastname", user.getLastName());
+            request.setAttribute("phone", user.getPhone());
+            request.setAttribute("roleid", user.getRoleID());
+            request.setAttribute("address", user.getAddress());
+            request.setAttribute("email", user.getEmail());
+            request.setAttribute("avatar", user.getAvatar());
+            return "view/jsp/admin/admin_edit_user.jsp";
+        }
     }
 
-    private String deleteUser(HttpServletRequest request, UserDAO userDao)
-            throws ServletException, IOException, SQLException {
+    private String deleteUser(HttpServletRequest request, UserDAO userDao) throws SQLException {
         String uid = request.getParameter("uid");
         userDao.deleteUser(uid);
         request.setAttribute("mess", "Xóa người dùng thành công!");
-        List<UserDTO> userList = userDao.getData();
-        request.setAttribute("LISTUSERS", userList);
-        request.setAttribute("CURRENTSERVLET", "User");
-        return MANAGE_USER_PAGE;
+        return this.showUserList(request, userDao);
     }
 
-    private String insertNewUser(HttpServletRequest request, UserDAO userDao)
-            throws ServletException, IOException, SQLException, Exception {
+    private String insertNewUser(HttpServletRequest request, UserDAO userDao) throws SQLException, Exception {
         String fullName = request.getParameter("fullname");
         String username = request.getParameter("username");
         String password = request.getParameter("password");
@@ -120,39 +112,27 @@ public class UserManagementServlet extends HttpServlet {
         String phone = request.getParameter("phone");
         String role = request.getParameter("role");
         String avatar = request.getParameter("avatar");
+        String firstName = fullName != null && !fullName.isEmpty() ? fullName.split(" ")[0] : "";
+        String lastName = fullName != null && fullName.split(" ").length > 1 ? String.join(" ", (CharSequence[])Arrays.copyOfRange(fullName.split(" "), 1, fullName.split(" ").length)) : "";
+        int roleId = "admin".equals(role) ? 1 : 2;
+        if (avatar != null && !avatar.isEmpty()) {
+            avatar = "view/assets/home/img/users/" + avatar;
+        }
 
-        if (userDao.checkUserNameDuplicate(username)) {
-            setUserAttributes(request, username, fullName, "", phone, email, address, avatar, role);
-            request.setAttribute("error", "Tên tài khoản đã tồn tại!");
-            return INSERT_USER_PAGE;
-        } else if (!isValidEmail(email)) {
-            setUserAttributes(request, username, fullName, "", phone, email, address, avatar, role);
-            request.setAttribute("error", "Email không hợp lệ!");
-            return INSERT_USER_PAGE;
-        } else if (!isValidPhone(phone)) {
-            setUserAttributes(request, username, fullName, "", phone, email, address, avatar, role);
-            request.setAttribute("error", "Số điện thoại không hợp lệ! (Cần 10 chữ số)");
-            return INSERT_USER_PAGE;
-        } else {
-            String firstName = fullName.split(" ")[0];
-            String lastName = String.join(" ", Arrays.copyOfRange(fullName.split(" "), 1, fullName.split(" ").length));
-            int roleId = "admin".equals(role) ? 1 : 2;
+        UserDTO user = new UserDTO(0, firstName, lastName, email, avatar, username, password, address, phone, roleId, true);
 
-            if (avatar != null && !avatar.isEmpty()) {
-                avatar = UPLOAD_DIR + avatar;
-            }
-            UserDTO user = new UserDTO(0, firstName, lastName, email, avatar, username, password, address, phone, roleId, true);
+        try {
             userDao.registerUser(user);
             request.setAttribute("mess", "Thêm người dùng thành công!");
-            List<UserDTO> userList = userDao.getData();
-            request.setAttribute("LISTUSERS", userList);
-            request.setAttribute("CURRENTSERVLET", "User");
-            return MANAGE_USER_PAGE;
+            return this.showUserList(request, userDao);
+        } catch (SQLException e) {
+            this.setUserAttributes(request, username, firstName, lastName, phone, email, address, avatar, role);
+            request.setAttribute("error", e.getMessage());
+            return "view/jsp/admin/admin_user_insert.jsp";
         }
     }
 
-    private String updateUser(HttpServletRequest request, UserDAO userDao)
-            throws ServletException, IOException, SQLException, Exception {
+    private String updateUser(HttpServletRequest request, UserDAO userDao) throws SQLException, Exception {
         String username = request.getParameter("username");
         String firstname = request.getParameter("firstname");
         String lastname = request.getParameter("lastname");
@@ -161,51 +141,53 @@ public class UserManagementServlet extends HttpServlet {
         String email = request.getParameter("email");
         String role = request.getParameter("role");
         String avatar = request.getParameter("avatar");
-
-        // Validation email và phone
-        if (!isValidEmail(email)) {
-            setUserAttributes(request, username, firstname, lastname, phone, email, address, avatar, role);
-            request.setAttribute("error", "Email không hợp lệ!");
-            return EDIT_USER_PAGE;
-        } else if (!isValidPhone(phone)) {
-            setUserAttributes(request, username, firstname, lastname, phone, email, address, avatar, role);
-            request.setAttribute("error", "Số điện thoại không hợp lệ! (Cần 10 chữ số)");
-            return EDIT_USER_PAGE;
+        if (avatar != null && !avatar.isEmpty()) {
+            avatar = "view/assets/home/img/users/" + avatar;
         } else {
-            if (avatar != null && !avatar.isEmpty()) {
-                avatar = UPLOAD_DIR + avatar;
-            } else {
-                avatar = userDao.getUserByName(username).getAvatar();
-            }
+            UserDTO existingUser = userDao.getUserByName(username);
+            avatar = existingUser != null ? existingUser.getAvatar() : "";
+        }
 
-            int roleId = "admin".equals(role) ? 1 : 2;
+        int roleId = "admin".equals(role) ? 1 : 2;
+
+        try {
             userDao.updateUser(firstname, lastname, email, address, phone, username, avatar, roleId);
             request.setAttribute("mess", "Cập nhật người dùng thành công!");
-            List<UserDTO> userList = userDao.getData();
-            request.setAttribute("LISTUSERS", userList);
-            request.setAttribute("CURRENTSERVLET", "User");
-            return MANAGE_USER_PAGE;
+            return this.showUserList(request, userDao);
+        } catch (SQLException e) {
+            this.setUserAttributes(request, username, firstname, lastname, phone, email, address, avatar, role);
+            request.setAttribute("error", e.getMessage());
+            return "view/jsp/admin/admin_edit_user.jsp";
         }
     }
-        private String searchUsers(HttpServletRequest request, UserDAO userDao) 
-            throws ServletException, IOException, SQLException, Exception {
+
+    private String searchUsers(HttpServletRequest request, UserDAO userDao) throws SQLException, Exception {
         String searchQuery = request.getParameter("search");
-        List<UserDTO> userList;
-
-        if (searchQuery != null && !searchQuery.trim().isEmpty()) {
-            userList = userDao.searchUsers(searchQuery);
-            request.setAttribute("searchQuery", searchQuery);
-        } else {
-            userList = userDao.getData();
-        }
-
+        List<UserDTO> userList = searchQuery != null && !searchQuery.trim().isEmpty() ? userDao.searchUsers(searchQuery) : userDao.getData();
         request.setAttribute("LISTUSERS", userList);
         request.setAttribute("CURRENTSERVLET", "User");
-        return MANAGE_USER_PAGE;
+        if (searchQuery != null && !searchQuery.trim().isEmpty()) {
+            request.setAttribute("searchQuery", searchQuery);
+        }
+
+        return "view/jsp/admin/admin_users.jsp";
     }
-    // Thiết lập các thuộc tính để giữ dữ liệu khi có lỗi
-    private void setUserAttributes(HttpServletRequest request, String username, String firstname, 
-            String lastname, String phone, String email, String address, String avatar, String role) {
+
+    private String restoreUser(HttpServletRequest request, UserDAO userDao) throws SQLException, Exception {
+        String uid = request.getParameter("uid");
+        userDao.restoreUser(uid);
+        request.setAttribute("mess", "Khôi phục người dùng thành công!");
+        return this.showUserList(request, userDao);
+    }
+
+    private String permanentlyDeleteUser(HttpServletRequest request, UserDAO userDao) throws SQLException, Exception {
+        String uid = request.getParameter("uid");
+        userDao.permanentlyDeleteUser(uid);
+        request.setAttribute("mess", "Xóa vĩnh viễn người dùng thành công!");
+        return this.showUserList(request, userDao);
+    }
+
+    private void setUserAttributes(HttpServletRequest request, String username, String firstname, String lastname, String phone, String email, String address, String avatar, String role) {
         request.setAttribute("username", username);
         request.setAttribute("firstname", firstname);
         request.setAttribute("lastname", lastname);
@@ -215,42 +197,15 @@ public class UserManagementServlet extends HttpServlet {
         request.setAttribute("avatar", avatar);
         request.setAttribute("role", role);
     }
-    private String restoreUser(HttpServletRequest request, UserDAO userDao)
-        throws ServletException, IOException, SQLException, Exception {
-    String uid = request.getParameter("uid");
-    userDao.restoreUser(uid);
-    request.setAttribute("mess", "Khôi phục người dùng thành công!");
-    List<UserDTO> userList = userDao.getData();
-    request.setAttribute("LISTUSERS", userList);
-    request.setAttribute("CURRENTSERVLET", "User");
-    return MANAGE_USER_PAGE;
-    }
-    
-    private String permanentlyDeleteUser(HttpServletRequest request, UserDAO userDao)
-        throws ServletException, IOException, SQLException, Exception {
-    String uid = request.getParameter("uid");
-    userDao.permanentlyDeleteUser(uid);
-    request.setAttribute("mess", "Xóa vĩnh viễn người dùng thành công!");
-    List<UserDTO> userList = userDao.getData();
-    request.setAttribute("LISTUSERS", userList);
-    request.setAttribute("CURRENTSERVLET", "User");
-    return MANAGE_USER_PAGE;
-    }
-    
-    
-    @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        processRequest(request, response);
+
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        this.processRequest(request, response);
     }
 
-    @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        processRequest(request, response);
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        this.processRequest(request, response);
     }
 
-    @Override
     public String getServletInfo() {
         return "User Management Servlet";
     }

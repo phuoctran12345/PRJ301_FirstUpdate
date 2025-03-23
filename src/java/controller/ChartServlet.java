@@ -1,50 +1,108 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package controller;
 
 import dao.OrderDAO;
-import java.io.IOException;
+import dao.ProductDAO;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import model.CategoryRevenueDTO;
 
 @WebServlet(name = "ChartServlet", urlPatterns = {"/ChartServlet"})
 public class ChartServlet extends HttpServlet {
+    // Đường dẫn đến trang hiển thị biểu đồ
     private static final String CHART_PAGE = "view/jsp/admin/admin_chart.jsp";
 
-    protected void processRequest(HttpServletRequest request, HttpServletResponse response)
+    protected void processRequest(HttpServletRequest request, HttpServletResponse response) 
             throws ServletException, IOException {
         OrderDAO oDao = new OrderDAO();
+        ProductDAO pDao = new ProductDAO();
+        // Biến kiểm tra có lỗi xảy ra trong quá trình xử lý không
+        boolean hasError = false;
+
         try {
-            // Lấy doanh thu của các năm
-            int[] years = {2018, 2019, 2020, 2021, 2022, 2023, 2024};
-            double[] totalMoneyByYear = new double[years.length];
-            for (int i = 0; i < years.length; i++) {
-                totalMoneyByYear[i] = oDao.getTotalMoneyByYear(years[i]);
-                request.setAttribute("YEAR" + (years[i] - 2017), totalMoneyByYear[i]);
+            // Lấy dữ liệu doanh thu theo năm
+            java.util.Calendar cal = java.util.Calendar.getInstance();
+            int currentYear = cal.get(java.util.Calendar.YEAR);
+            int startYear = currentYear - 4; // Lấy 5 năm gần nhất
+            double[] yearlyData = new double[5];
+            
+            // Xử lý dữ liệu từng năm
+            for (int i = 0; i < 5; i++) {
+                try {
+                    yearlyData[i] = oDao.getTotalMoneyByYear(startYear + i);
+                    request.setAttribute("YEAR" + (i + 1), yearlyData[i]);
+                } catch (Exception e) {
+                    log("Lỗi khi lấy dữ liệu năm " + (startYear + i) + ": " + e.getMessage());
+                    request.setAttribute("YEAR" + (i + 1), 0.0);
+                    hasError = true;
+                }
             }
 
-            // Lấy doanh thu của các tháng trong năm
-            double[] totalMoneyByMonth = new double[12];
+            // Lấy dữ liệu doanh thu theo tháng trong năm hiện tại
+            double[] monthlyData = new double[12];
             for (int month = 1; month <= 12; month++) {
-                totalMoneyByMonth[month - 1] = oDao.getTotalMoneyByMonth(month);
-                request.setAttribute("MONTH" + month, totalMoneyByMonth[month - 1]);
+                try {
+                    monthlyData[month - 1] = oDao.getTotalMoneyByMonth(month);
+                    request.setAttribute("MONTH" + month, monthlyData[month - 1]);
+                } catch (Exception e) {
+                    log("Lỗi khi lấy dữ liệu tháng " + month + ": " + e.getMessage());
+                    request.setAttribute("MONTH" + month, 0.0);
+                    hasError = true;
+                }
             }
 
-            // Thêm thông tin vào request để trang JSP có thể sử dụng
-            request.setAttribute("CURRENTSERVLET", "Chart");
+            // Lấy danh sách top 5 khách hàng có doanh số cao nhất
+            try {
+                List<Object[]> topUsers = oDao.getTopUsersByTotalSpent(5);
+                request.setAttribute("TOP_USERS", topUsers);
+            } catch (Exception e) {
+                log("Lỗi khi lấy danh sách top khách hàng: " + e.getMessage());
+                request.setAttribute("TOP_USERS", new ArrayList<>());
+                hasError = true;
+            }
 
+            // Lấy danh sách top 5 sản phẩm bán chạy nhất
+            try {
+                List<Object[]> topProducts = pDao.getTopProductsByOrderCount(5);
+                request.setAttribute("TOP_PRODUCTS", topProducts);
+            } catch (Exception e) {
+                log("Lỗi khi lấy danh sách top sản phẩm: " + e.getMessage());
+                request.setAttribute("TOP_PRODUCTS", new ArrayList<>());
+                hasError = true;
+            }
+
+            // Lấy dữ liệu doanh thu theo danh mục sản phẩm
+            try {
+                List<CategoryRevenueDTO> categoryRevenue = oDao.getCategoryRevenue();
+                request.setAttribute("CATEGORY_REVENUE", categoryRevenue);
+            } catch (Exception e) {
+                log("Lỗi khi lấy dữ liệu doanh thu theo danh mục: " + e.getMessage());
+                request.setAttribute("CATEGORY_REVENUE", new ArrayList<>());
+                hasError = true;
+            }
+
+            request.setAttribute("CURRENTSERVLET", "Chart");
+            
+            // Hiển thị cảnh báo nếu có lỗi xảy ra
+            if (hasError) {
+                request.setAttribute("WARNING_MESSAGE", 
+                    "Một số dữ liệu không thể tải. Vui lòng kiểm tra log để biết chi tiết.");
+            }
+            
         } catch (Exception ex) {
-            log("ChartServlet error:" + ex.getMessage());
-            request.setAttribute("ERROR_MESSAGE", "Có lỗi xảy ra khi lấy dữ liệu thống kê.");
-        } finally {
-            request.getRequestDispatcher(CHART_PAGE).forward(request, response);
+            // Xử lý lỗi nghiêm trọng
+            log("Lỗi nghiêm trọng trong ChartServlet: " + ex.getMessage());
+            request.setAttribute("ERROR_MESSAGE", 
+                "Lỗi nghiêm trọng khi tải dữ liệu thống kê. Chi tiết: " + ex.getMessage());
         }
+
+        // Chuyển hướng đến trang hiển thị biểu đồ
+        request.getRequestDispatcher(CHART_PAGE).forward(request, response);
     }
 
     @Override
@@ -57,10 +115,5 @@ public class ChartServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         processRequest(request, response);
-    }
-
-    @Override
-    public String getServletInfo() {
-        return "Servlet for generating statistics charts of total money by year and month.";
     }
 }

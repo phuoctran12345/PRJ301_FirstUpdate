@@ -1,6 +1,7 @@
 package controller;
 
-import utils.WishlistUtil;
+import service.IWishlistService;
+import service.WishlistService;
 import dao.ProductDAO;
 import model.ProductDTO;
 import jakarta.servlet.ServletException;
@@ -18,7 +19,6 @@ import java.util.List;
 public class WishlistServlet extends HttpServlet {
 
     private static final String WISHLIST_PAGE = "view/jsp/home/wishlist.jsp";
-    
 
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -29,7 +29,7 @@ public class WishlistServlet extends HttpServlet {
 
         // Initialize tools and variables
         ProductDAO productDAO = new ProductDAO();
-        WishlistUtil wishlistUtil = new WishlistUtil();
+        IWishlistService wishlistService = new WishlistService(); // Use interface and implementation
         HttpSession session = request.getSession();
         List<ProductDTO> wishlist = null;
         HashMap<Integer, ProductDTO> wishlistItems = null;
@@ -50,14 +50,14 @@ public class WishlistServlet extends HttpServlet {
                 if ("Add".equals(action)) {
                     wishlist = (List<ProductDTO>) session.getAttribute("WISHLIST");
                     if (wishlist == null) {
-                        wishlistItems = wishlistUtil.createWishlist(product);
+                        wishlistItems = wishlistService.createWishlist(product);
                     } else {
-                        wishlistItems = wishlistUtil.addItemToWishlist(product);
+                        wishlistItems = wishlistService.addItemToWishlist(product);
                     }
                 }
                 // Handle "Delete" action
                 else if ("Delete".equals(action)) {
-                    wishlistItems = wishlistUtil.removeItem(product);
+                    wishlistItems = wishlistService.removeItem(product);
                     destination = WISHLIST_PAGE;
                 }
             }
@@ -67,8 +67,8 @@ public class WishlistServlet extends HttpServlet {
             session.setAttribute("WISHLIST", wishlist);
 
             // Save wishlist to cookie
-            String wishlistString = wishlistUtil.convertToString();
-            wishlistUtil.saveWishlistToCookie(request, response, wishlistString);
+            String wishlistString = wishlistService.convertToString();
+            wishlistService.saveWishlistToCookie(request, response, wishlistString);
 
         } catch (Exception ex) {
             log("WishlistServlet error: " + ex.getMessage());

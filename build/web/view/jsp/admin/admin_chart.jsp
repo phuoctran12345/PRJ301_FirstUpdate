@@ -1,142 +1,158 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
-
 <%@include file="../../common/taglib.jsp"%>
 <!DOCTYPE html>
 <html>
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <title>Revenue Statistics</title>
+    <title>Thống kê doanh thu</title>
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
-    
-    <!-- CSS Libraries -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/boxicons@latest/css/boxicons.min.css">
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.2/css/all.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-confirm/3.3.2/jquery-confirm.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css">
     <link rel="stylesheet" type="text/css" href="view/assets/admin/css/main.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
-<body onload="time()" class="app sidebar-mini rtl">
+<body class="app sidebar-mini rtl">
     <%@include file="../../common/admin/sidebar.jsp"%>
-
+    
     <main class="app-content">
-        <div class="app-title">
-            <ul class="app-breadcrumb breadcrumb side">
-                <li class="breadcrumb-item active"><a href="#"><b>Revenue Charts</b></a></li>
-            </ul>
-            <div id="clock"></div>
-        </div>
-
-        <c:if test="${not empty ERROR_MESSAGE}">
-            <div class="alert alert-danger">${ERROR_MESSAGE}</div>
-        </c:if>
-
         <div class="row">
-            <div class="col-md-12">
+            <!-- Biểu đồ cột (Monthly) -->
+            <div class="col-md-6">
                 <div class="tile">
+                    <h3 class="tile-title">Doanh thu theo tháng</h3>
                     <div class="tile-body">
-                        <div class="row">
-                            <!-- Monthly Revenue Chart -->
-                            <div class="col-sm-12 col-xl-6 mb-4">
-                                <div class="bg-light text-center rounded p-4">
-                                    <h6 class="mb-4">Monthly Revenue (Current Year)</h6>
-                                    <canvas id="monthly-revenue"></canvas>
-                                </div>
-                            </div>
-
-                            <!-- Yearly Revenue Chart -->
-                            <div class="col-sm-12 col-xl-6 mb-4">
-                                <div class="bg-light text-center rounded p-4">
-                                    <h6 class="mb-4">Yearly Revenue (2018-2024)</h6>
-                                    <canvas id="yearly-revenue"></canvas>
-                                </div>
-                            </div>
-                        </div>
+                        <canvas id="monthlyChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Biểu đồ đường (Yearly) -->
+            <div class="col-md-6">
+                <div class="tile">
+                    <h3 class="tile-title">Doanh thu theo năm</h3>
+                    <div class="tile-body">
+                        <canvas id="yearlyChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Biểu đồ tròn (Category Revenue) -->
+            <div class="col-md-6">
+                <div class="tile">
+                    <h3 class="tile-title">Doanh thu theo danh mục</h3>
+                    <div class="tile-body">
+                        <canvas id="categoryPieChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Biểu đồ tròn (Top Products) -->
+            <div class="col-md-6">
+                <div class="tile">
+                    <h3 class="tile-title">Top 5 sản phẩm bán chạy</h3>
+                    <div class="tile-body">
+                        <canvas id="productPieChart"></canvas>
                     </div>
                 </div>
             </div>
         </div>
     </main>
 
-    <!-- JavaScript Libraries -->
-    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    
-
-    <script type="text/javascript">
-        // Monthly Revenue Chart
-        var ctx1 = document.getElementById("monthly-revenue").getContext("2d");
-        var monthlyChart = new Chart(ctx1, {
-            type: "bar",
+    <script>
+        // Biểu đồ cột theo tháng
+        new Chart(document.getElementById("monthlyChart"), {
+            type: 'bar',
             data: {
-                labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+                labels: ['T1', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'T8', 'T9', 'T10', 'T11', 'T12'],
                 datasets: [{
-                    label: "Revenue ($)",
+                    label: 'Doanh thu (VNĐ)',
                     data: [
-                        ${requestScope.MONTH1}, ${requestScope.MONTH2}, ${requestScope.MONTH3},
-                        ${requestScope.MONTH4}, ${requestScope.MONTH5}, ${requestScope.MONTH6},
-                        ${requestScope.MONTH7}, ${requestScope.MONTH8}, ${requestScope.MONTH9},
-                        ${requestScope.MONTH10}, ${requestScope.MONTH11}, ${requestScope.MONTH12}
+                        ${MONTH1}, ${MONTH2}, ${MONTH3}, ${MONTH4}, 
+                        ${MONTH5}, ${MONTH6}, ${MONTH7}, ${MONTH8},
+                        ${MONTH9}, ${MONTH10}, ${MONTH11}, ${MONTH12}
                     ],
-                    backgroundColor: "rgba(54, 162, 235, 0.7)",
-                    borderColor: "rgba(54, 162, 235, 1)",
-                    borderWidth: 1
+                    backgroundColor: 'rgba(54, 162, 235, 0.5)'
                 }]
             },
             options: {
                 responsive: true,
                 scales: {
                     y: {
-                        beginAtZero: true,
-                        title: {
-                            display: true,
-                            text: 'Revenue ($)'
-                        }
-                    }
-                },
-                plugins: {
-                    legend: {
-                        position: 'top'
+                        beginAtZero: true
                     }
                 }
             }
         });
 
-        // Yearly Revenue Chart
-        var ctx2 = document.getElementById("yearly-revenue").getContext("2d");
-        var yearlyChart = new Chart(ctx2, {
-            type: "line",
+        // Biểu đồ đường theo năm
+        new Chart(document.getElementById("yearlyChart"), {
+            type: 'line',
             data: {
-                labels: ["2018", "2019", "2020", "2021", "2022", "2023", "2024"],
+                labels: ['2019', '2020', '2021', '2022', '2023'],
                 datasets: [{
-                    label: "Revenue ($)",
+                    label: 'Doanh thu (VNĐ)',
+                    data: [${YEAR1}, ${YEAR2}, ${YEAR3}, ${YEAR4}, ${YEAR5}],
+                    borderColor: 'rgb(75, 192, 192)',
+                    tension: 0.1
+                }]
+            }
+        });
+
+        // Biểu đồ tròn theo danh mục
+        new Chart(document.getElementById("categoryPieChart"), {
+            type: 'pie',
+            data: {
+                labels: [
+                    <c:forEach items="${CATEGORY_REVENUE}" var="cat" varStatus="status">
+                        '${cat[0]}'${!status.last ? ',' : ''}
+                    </c:forEach>
+                ],
+                datasets: [{
                     data: [
-                        ${requestScope.YEAR1}, ${requestScope.YEAR2}, ${requestScope.YEAR3},
-                        ${requestScope.YEAR4}, ${requestScope.YEAR5}, ${requestScope.YEAR6},
-                        ${requestScope.YEAR7}
+                        <c:forEach items="${CATEGORY_REVENUE}" var="cat" varStatus="status">
+                            ${cat[1]}${!status.last ? ',' : ''}
+                        </c:forEach>
                     ],
-                    backgroundColor: "rgba(75, 192, 192, 0.2)",
-                    borderColor: "rgba(75, 192, 192, 1)",
-                    borderWidth: 2,
-                    fill: true,
-                    tension: 0.4
+                    backgroundColor: [
+                        '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF'
+                    ]
                 }]
             },
             options: {
                 responsive: true,
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        title: {
-                            display: true,
-                            text: 'Revenue ($)'
-                        }
-                    }
-                },
                 plugins: {
                     legend: {
-                        position: 'top'
+                        position: 'bottom'
+                    }
+                }
+            }
+        });
+
+        // Biểu đồ tròn top sản phẩm
+        new Chart(document.getElementById("productPieChart"), {
+            type: 'pie',
+            data: {
+                labels: [
+                    <c:forEach items="${TOP_PRODUCTS}" var="product" varStatus="status">
+                        '${product[1]}'${!status.last ? ',' : ''}
+                    </c:forEach>
+                ],
+                datasets: [{
+                    data: [
+                        <c:forEach items="${TOP_PRODUCTS}" var="product" varStatus="status">
+                            ${product[2]}${!status.last ? ',' : ''}
+                        </c:forEach>
+                    ],
+                    backgroundColor: [
+                        '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF'
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
                     }
                 }
             }

@@ -1,173 +1,259 @@
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
+<%@include file="../../common/taglib.jsp"%>
+<link rel="stylesheet" href="darkMode.css">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Clothes - Shop</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- Favicon -->
+    <link rel="shortcut icon" type="image/x-icon" href="view\assets\home\img\favicon.png">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <!-- Dark Mode CSS -->
+    <link rel="stylesheet" href="darkMode.css">
+    <!-- Other CSS -->
+    <%@include file="../../common/web/add_css.jsp"%>
+</head>
+<body>
+    <!--pos page start-->
+    <div class="pos_page">
+        <div class="container">
+            <!--pos page inner-->
+            <div class="pos_page_inner">  
+                <!--header area -->
+                <%@include file="../../common/web/header.jsp"%>
+                <!--header end -->
 
-<!--HÀM DARK MODE ------------------------------------------------------------------------------ -->
-<script>
-    // Hàm chuyển đổi theme
-    function toggleTheme() {
-        const body = document.body;
-        body.classList.toggle('dark-mode');
+                <!--pos home section-->
+                <div class="pos_home_section">
+                    <div class="row pos_home">
+                        <div class="col-lg-3 col-md-8 col-12">
+                            <!--sidebar banner-->
+                            <div class="sidebar_widget banner mb-35">
+                                <div class="banner_img mb-35">
+                                    <a href="#"><img src="view\assets\home\img\banner\banner5.jpg" alt=""></a>
+                                </div>
+                                <div class="banner_img">
+                                    <a href="#"><img src="view\assets\home\img\banner\banner6.jpg" alt=""></a>
+                                </div>
+                            </div>
+                            <!--sidebar banner end-->
 
-        // Cập nhật icon và text của nút
-        const themeButton = document.querySelector('.theme-toggle-btn');
-        if (body.classList.contains('dark-mode')) {
-            themeButton.innerHTML = '<i class="fa fa-sun-o"></i> Light Mode';
-            localStorage.setItem('theme', 'dark');
-        } else {
-            themeButton.innerHTML = '<i class="fa fa-moon-o"></i> Dark Mode';
-            localStorage.setItem('theme', 'light');
-        }
-    }
-
-    // Kiểm tra theme đã lưu khi tải trang
-    window.onload = function () {
-        const savedTheme = localStorage.getItem('theme');
-        const themeButton = document.querySelector('.theme-toggle-btn');
-        if (savedTheme === 'dark') {
-            document.body.classList.add('dark-mode');
-            themeButton.innerHTML = '<i class="fa fa-sun-o"></i> Light Mode';
-        } else {
-            themeButton.innerHTML = '<i class="fa fa-moon-o"></i> Dark Mode';
-        }
-    };
-</script>
-
-<div class="header_area">
-    <!--header top--> 
-    <div class="header_top">
-        <div class="row align-items-center">
-            <div class="col-lg-6 col-md-6">
-                <!--                <div class="switcher">
-                                    <ul>
-                                        <li class="languages"><a href="#"><img src="assets\img\logo\fontlogo.jpg" alt=""> English <i class="fa fa-angle-down"></i></a>
-                                            <ul class="dropdown_languages">
-                                                <li><a href="#"><img src="assets\img\logo\fontlogo.jpg" alt=""> English</a></li>         
-                                            </ul>   
-                                        </li> 
-                
-                                        <li class="currency"><a href="#"> Currency : $ <i class="fa fa-angle-down"></i></a>
-                                            <ul class="dropdown_currency">
-                                                <li><a href="#"> Dollar (USD)</a></li>
-                                                <li><a href="#"> Euro (EUR)  </a></li>
-                                            </ul> 
-                                        </li> 
-                                    </ul>
-                                </div>-->
-            </div>
-            <div class="col-lg-6 col-md-6">
-                <div class="header_links">
-                    <ul>
-                        <li><button class="theme-toggle-btn" onclick="toggleTheme()">
-                                <i class="fa fa-moon-o"></i> Dark Mode
-                            </button>
-                        </li>
-                        <li><a href="ContactServlet" title="Contact">Contact</a></li>
-                        <li><a href="WishlistServlet" title="wishlist">My wishlist</a></li>
-                        <li><a href="CartServlet" title="My cart">My cart</a></li>  
-                            <c:if test="${sessionScope.account != null}">
-                            <li><a href="ProfileServlet" title="My account">My account</a></li>
+                            <!--wishlist block start-->
+                            <c:if test="${sessionScope.WISHLIST != null}">
+                                <div class="sidebar_widget wishlist mb-35" id="wishlist-small">
+                                    <div class="block_title">
+                                        <h3><a href="WishlistServlet">Wishlist</a></h3>
+                                    </div>
+                                    <c:forEach items="${sessionScope.WISHLIST}" var="p" varStatus="loop">
+                                        <c:if test="${loop.index <= 2}">
+                                            <div class="cart_item">
+                                                <div class="cart_img">
+                                                    <a href="SingleProductServlet?product_id=${p.id}"><img src="${p.images[0]}" alt=""></a>
+                                                </div>
+                                                <div class="cart_info">
+                                                    <a href="SingleProductServlet?product_id=${p.id}">${p.name}</a>
+                                                    <span class="cart_price">$${p.salePrice}</span>
+                                                </div>
+                                            </div>
+                                        </c:if>
+                                    </c:forEach>
+                                    <div class="block_content">
+                                        <p>${sessionScope.WISHLIST.size()} products</p>
+                                        <a href="WishlistServlet">» My wishlists</a>
+                                    </div>
+                                </div>
                             </c:if>
-                            <c:if test="${sessionScope.account == null}">
-                            <li><a href="DispatchServlet?btnAction=Login" title="Login">Login</a></li>  
-                            </c:if>
-                            <c:if test="${sessionScope.account != null}">
-                            <li><a href="${sessionScope.account.roleID == 1 ? 'AdminServlet' : 'ProfileServlet'} ">Hello, ${sessionScope.account.firstName} ${sessionScope.account.lastName}!</a></li>
-                            <li><a href="DispatchServlet?btnAction=Logout">Logout</a></li>
-                            </c:if>
-                    </ul>
-                </div>   
-            </div>
-        </div> 
-    </div> 
-    <!--header top end-->
+                            <!--wishlist block end-->
 
-    <!--header middel--> 
-    <div class="header_middel">
-        <div class="row align-items-center">
-            <!--logo start-->
-            <div class="col-lg-3 col-md-3">
-                <div class="logo">
-                    <a href="DispatchServlet"><img src="view\assets\home\img\logo\logo.jpg.png" alt=""></a>
-                </div>
-            </div>
-            <!--logo end-->
-            <div class="col-lg-9 col-md-9">
-                <div class="header_right_info">
-                    <div class="search_bar">
-                        <form action="DispatchServlet" method="get" >
-                            <input name="txtSearch" value="" placeholder="Search..." type="text">
-                            <button name="btnAction" value="Search" type="submit"><i class="fa fa-search"></i></button>
-                        </form>
-                    </div>
-                    <div class="shopping_cart" id="cart-icon">
-                        <c:if test="${sessionScope.CART != null && sessionScope.CART.size() != 0}">
-                            <a href="#"><i class="fa fa-shopping-cart"></i> ${sessionScope.CART.size()} Items <i class="fa fa-angle-down"></i></a>
-                            </c:if>
-                            <c:if test="${sessionScope.CART == null || sessionScope.CART.size() == 0}">
-                            <a href="#"><i class="fa fa-shopping-cart"></i><i class="fa fa-angle-down"></i></a>
-                                </c:if>
+                            <!--sidebar banner-->
+                            <div class="sidebar_widget bottom">
+                                <div class="banner_img">
+                                    <a href="#"><img src="view\assets\home\img\banner\banner9.jpg" alt=""></a>
+                                </div>
+                            </div>
+                            <!--sidebar banner end-->
+                        </div>
+                        <div class="col-lg-9 col-md-12">
+                            <!--banner slider start-->
+                            <div class="banner_slider slider_1">
+                                <div class="single_slider" style="background-image: url(view/assets/home/img/slider/slide_1.png)">
+                                    <div class="slider_content">
+                                        <div class="slider_content_inner">  
+                                            <h1>Men's Fashion</h1>
+                                            <p>Thời trang, phong cách trẻ trung.</p>
+                                            <a href="ShopServlet">shop now</a>
+                                        </div>     
+                                    </div>    
+                                </div>
+                            </div> 
+                            <!--banner slider end-->
 
-                        <!--mini cart-->
-                        <div class="mini_cart" >
-                            <div style="max-height: 300px; overflow-y: auto;">
-                                <c:forEach items="${sessionScope.CART}" var="c">
-                                    <div class="cart_item">
-                                        <div class="cart_img">
-                                            <a href="SingleProductServlet?product_id=${c.product.id}"><img src="${c.product.images[0]}" alt=""></a>
+                            <!--new product area start-->
+                            <div class="new_product_area">
+                                <div class="block_title">
+                                    <h3>Mẫu mới 2024</h3>
+                                </div>
+                                <div class="row">
+                                    <c:if test="${requestScope.LIST_PRODUCTS_NEW != null}">
+                                        <c:forEach var="p" items="${requestScope.LIST_PRODUCTS_NEW}">
+                                            <div class="col-lg-3 col-md-6">
+                                                <div class="single_product">
+                                                    <div class="product_thumb">
+                                                        <a href="SingleProductServlet?product_id=${p.id}"><img src="${p.images[0]}" alt=""></a> 
+                                                        <div class="img_icone">
+                                                            <img src="view/assets/home/img/cart/span-new.png" alt="">
+                                                        </div>
+                                                        <c:if test="${p.discount != 0}">
+                                                            <span class="discount">Up to ${p.discount * 100}%</span>
+                                                        </c:if>
+                                                        <div class="product_action">
+                                                            <form action="CartServlet" method="post">
+                                                                <input type="hidden" name="action" value="Add">
+                                                                <input type="hidden" name="product_id" value="${p.id}">
+                                                                <input type="hidden" name="quantity" value="1">
+                                                                <button type="submit" style="display: block; border: none; width: 100%; background: #018576; color: #fff; padding: 7px 0; text-transform: capitalize; font-size: 13px;">
+                                                                    <i class="fa fa-shopping-cart"></i> Thêm vào giỏ
+                                                                </button>
+                                                            </form>
+                                                        </div>
+                                                    </div>
+                                                    <div class="product_content">
+                                                        <div style="display: flex; justify-content: center">
+                                                            <c:if test="${p.price != p.salePrice}">
+                                                                <span style="margin-right: 10px; font-weight: 400;" class="old_price">Rs. ${p.price}đ</span>
+                                                            </c:if>
+                                                            <span class="current_price">Rs. ${p.salePrice}đ</span>
+                                                        </div>
+                                                        <h3 class="product_title"><a href="SingleProductServlet?product_id=${p.id}">${p.name}</a></h3>
+                                                    </div>
+                                                    <div class="product_info">
+                                                        <ul>
+                                                            <li>
+                                                                <form action="WishlistServlet" method="post">
+                                                                    <input type="hidden" name="action" value="Add">
+                                                                    <input type="hidden" name="product_id" value="${p.id}">
+                                                                    <button type="submit" style="color: red; border: none; border-radius: 4px; font-size: 13px; padding: 2px 11px; font-weight: 600;">Yêu thích</button>
+                                                                </form>
+                                                            </li>
+                                                            <li><a href="SingleProductServlet?product_id=${p.id}" title="View Detail">Xem sản phẩm</a></li>
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </c:forEach>
+                                    </c:if>
+                                </div>       
+                            </div> 
+                            <!--new product area end-->  
+
+                            <!--featured product start--> 
+                            <div class="featured_product">
+                                <div class="block_title">
+                                    <h3>Bán chạy nhất</h3>
+                                </div>
+                                <div class="row">
+                                    <c:forEach items="${requestScope.LIST_PRODUCTS_SELLER}" var="p">
+                                        <div class="col-lg-3 col-md-6">
+                                            <div class="single_product">
+                                                <div class="product_thumb">
+                                                    <a href="SingleProductServlet?product_id=${p.id}"><img src="${p.images[0]}" alt=""></a> 
+                                                    <div class="hot_img">
+                                                        <img src="view\assets\home\img\cart\span-hot.png" alt="">
+                                                    </div>
+                                                    <div class="product_action">
+                                                        <form action="CartServlet" method="post">
+                                                            <input type="hidden" name="action" value="Add">
+                                                            <input type="hidden" name="product_id" value="${p.id}">
+                                                            <input type="hidden" name="quantity" value="1">
+                                                            <button type="submit" style="display: block; border: none; width: 100%; background: #018576; color: #fff; padding: 7px 0; text-transform: capitalize; font-size: 13px;">
+                                                                <i class="fa fa-shopping-cart"></i> Thêm vào giỏ
+                                                            </button>
+                                                        </form>
+                                                    </div>
+                                                </div>
+                                                <div class="product_content">
+                                                    <div style="display: flex; justify-content: center">
+                                                        <c:if test="${p.price != p.salePrice}">
+                                                            <span style="margin-right: 10px; font-weight: 400;" class="old_price">Rs. ${p.price}đ</span>
+                                                        </c:if>
+                                                        <span class="current_price">Rs. ${p.salePrice}đ</span>
+                                                    </div>
+                                                    <h3 class="product_title"><a href="SingleProductServlet?product_id=${p.id}">${p.name}</a></h3>
+                                                </div>
+                                                <div class="product_info">
+                                                    <ul>
+                                                        <li>
+                                                            <form action="WishlistServlet" method="post">
+                                                                <input type="hidden" name="action" value="Add">
+                                                                <input type="hidden" name="product_id" value="${p.id}">
+                                                                <button type="submit" style="color: red; border: none; border-radius: 4px; font-size: 13px; padding: 2px 11px; font-weight: 600;">Yêu thích</button>
+                                                        </form>
+                                                        </li>
+                                                        <li><a href="SingleProductServlet?product_id=${p.id}" title="View Detail">Xem sản phẩm</a></li>
+                                                    </ul>
+                                                </div>
+                                            </div>
                                         </div>
-                                        <div class="cart_info">
-                                            <a href="SingleProductServlet?product_id=${c.product.id}">${c.product.name}</a>
-                                            <span class="cart_price">${c.product.getSalePrice()}&#273;</span>
-                                            <span class="quantity">X ${c.quantity}</span>
-                                        </div>
-                                        <div class="cart_remove">
-                                            <!--<a title="Remove this item" href="CartServlet?action=Delete&product_id=${c.product.id}&curPage=header.jsp"><i class="fa fa-times-circle"></i></a>-->
-                                            <button style="    background-color: transparent;
-                                                    border: none;
-                                                    color: #28a745;" onclick="deleteProducOnICon('Delete',${c.product.id}, 'header.jsp')"><i class="fa fa-times-circle"></i></button>
+                                    </c:forEach>
+                                </div> 
+                            </div>     
+                            <!--featured product end--> 
 
+                            <!--banner area start-->
+                            <div class="banner_area mb-60">
+                                <div class="row">
+                                    <div class="col-lg-6 col-md-6">
+                                        <div class="single_banner">
+                                            <a href="FilterServlet?discount=dis40"><img src="view\assets\home\img\banner\banner7.jpg" alt=""></a>
+                                            <div class="banner_title">
+                                                <p>Up to <span>40%</span> off</p>
+                                            </div>
                                         </div>
                                     </div>
-                                </c:forEach>
-                            </div>
-                            <div class="total_price">
-                                <span> Total </span>
-                                <span class="prices">  
-                                    <c:set var="totalPrice" value="0" />
-                                    <c:forEach items="${sessionScope.CART}" var="c">
-                                        <c:set var="productTotal" value="${c.product.getSalePrice() * c.quantity}" />
-                                        <c:set var="totalPrice" value="${totalPrice + productTotal}" />
-                                    </c:forEach>
-                                    ${totalPrice}&#273;
-                                </span>
-                            </div>
-                            <div class="cart_button">
-                                <a href="CheckoutServlet"> Check out</a>
-                            </div>
-                        </div>
-                        <!--mini cart end-->
-                    </div>
+                                    <div class="col-lg-6 col-md-6">
+                                        <div class="single_banner">
+                                            <a href="FilterServlet?discount=dis25"><img src="view\assets\home\img\banner\banner8.jpg" alt=""></a>
+                                            <div class="banner_title title_2">
+                                                <p>sale off <span>25%</span></p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>     
+                            <!--banner area end--> 
 
+                            <!--brand logo start--> 
+                            <div class="brand_logo mb-60">
+                                <div class="block_title">
+                                    <h3>Thương hiệu</h3>
+                                </div>
+                                <div class="row">
+                                    <c:forEach items="${requestScope.LIST_SUPPLIERS}" var="s">
+                                        <div class="col-lg-2 col-md-3">
+                                            <div class="single_brand">
+                                                <a href="FilterServlet?btnAction=filterBySupplier&id_filter=${s.id}"><img src="${s.image}" alt=""></a>
+                                            </div>
+                                        </div>
+                                    </c:forEach>
+                                </div>
+                            </div>       
+                            <!--brand logo end-->        
+                        </div>
+                    </div>  
                 </div>
+                <!--pos home section end-->
             </div>
-        </div>
-    </div>     
-    <!--header middel end-->      
-    <div class="header_bottom">
-        <div class="row">
-            <div class="col-12">
-                <div class="main_menu_inner">
-                    <div class="main_menu d-none d-lg-block">
-                        <nav>
-                            <ul>
-                                <li class="${requestScope.CURRENTSERVLET == "Home" ? "active" : ""}"><a href="DispatchServlet">Home</a></li>
-                                <li class="${requestScope.CURRENTSERVLET == "Shop" ? "active" : ""}"><a href="ShopServlet">SHOP</a></li>
-                                <li class="${requestScope.CURRENTSERVLET == "Contact" ? "active" : ""}"><a href="ContactServlet">contact us</a></li>
-                            </ul>
-                        </nav>
-                    </div>
-                </div>
-            </div>
+            <!--pos page inner end-->
         </div>
     </div>
-</div>
+    <!--pos page end-->
+
+    <!--footer area start-->
+    <%@include file="../../common/web/footer.jsp"%>
+    <!--footer area end-->
+</body>
+</html>

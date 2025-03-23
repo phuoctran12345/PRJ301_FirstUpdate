@@ -64,10 +64,28 @@
                     </div>
                 </div>
             </div>
+            <div class="col-md-6">
+               <div class="widget-small primary coloured-icon"><i class="icon bx bxs-bank fa-3x"></i>
+                    <div class="info">
+                        <h4>Tổng doanh thu</h4>
+                        <p><b>${requestScope.TOTALSALE} VNĐ</b></p>
+                        <p class="info-tong">Tổng doanh thu từ tất cả các đơn hàng.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="widget-small primary coloured-icon"><i class='icon bx bxs-calendar-check fa-3x'></i>
+                    <div class="info">
+                        <h4>Doanh thu hôm nay</h4>
+                        <p><b>${requestScope.TOTALSALETODAY} VNĐ</b></p>
+                        <p class="info-tong">Tổng doanh thu từ đơn hàng hôm nay.</p>
+                    </div>
+                </div>
+            </div>
             <div class="col-md-12">
                 <div class="tile">
                     <h3 class="tile-title">Đơn hàng gần đây</h3>
-                    <table class="table table-bordered">
+                    <table class="table table-hover table-bordered">
                         <thead>
                             <tr>
                                 <th>ID đơn hàng</th>
@@ -77,6 +95,7 @@
                                 <th>Ngày mua</th>
                                 <th>Tổng tiền</th>
                                 <th>Thanh Toán</th>
+                                <th>Trạng thái</th>
                                 <th>Chức năng</th>
                             </tr>
                         </thead>
@@ -90,7 +109,21 @@
                                     <td>${b.orderDate}</td>
                                     <td>${b.totalPrice}</td>
                                     <td><span class="badge bg-success">${b.paymentMethod.paymentMethod}</span></td>
-                                    <td><a style="color: rgb(245, 157, 57); background-color: rgb(251, 226, 197); padding: 5px; border-radius: 5px;" href="ManageOrderServlet?action=showdetail&bill_id=${b.getOrderID()}">Chi tiết đơn hàng</a></td>
+                                    <td>
+                                        ${b.status ? "Đã giao" : "Chưa giao"}
+                                        <c:if test="${!b.status}">
+                                            <a href="ManageOrderServlet?action=ChangeStatus&id=${b.orderID}" 
+                                               style="margin-left: 20px; color: green;">
+                                                <i class="fa-solid fa-check"></i>
+                                            </a>
+                                        </c:if>
+                                    </td>
+                                    <td>
+                                        <a style="color: rgb(245, 157, 57); background-color: rgb(251, 226, 197); padding: 5px; border-radius: 5px;" 
+                                           href="ManageOrderServlet?action=ShowDetail&bill_id=${b.orderID}">
+                                            <i class="fa"></i> Chi tiết
+                                        </a>
+                                    </td>
                                 </tr>
                             </c:forEach>
                         </tbody>

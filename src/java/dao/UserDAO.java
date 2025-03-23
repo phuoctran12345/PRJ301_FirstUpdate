@@ -39,7 +39,7 @@ public class UserDAO extends DBContext {
 
     private static final String DELETE_USER = "UPDATE Users SET status = 0 WHERE id = ?";
     
-        private static final String SEARCH_USERS = "SELECT * FROM Users WHERE (firstName LIKE ? OR lastName LIKE ? OR email LIKE ? OR phone LIKE ? OR username LIKE ?) ORDER BY status DESC, roleid ASC";
+     private static final String SEARCH_USERS = "SELECT * FROM Users WHERE (firstName LIKE ? OR lastName LIKE ? OR email LIKE ? OR phone LIKE ? OR username LIKE ? OR CONCAT(firstName, ' ', lastName) LIKE ?) ORDER BY status DESC, roleid ASC";
     private static final String REGISTER_USER = "INSERT INTO [dbo].[Users]\n"
             + "           ([firstname]\n"
             + "           ,[lastname]\n"
@@ -302,18 +302,22 @@ public class UserDAO extends DBContext {
         Connection conn = null;
         PreparedStatement ptm = null;
         ResultSet rs = null;
+        
+        
         try {
-            conn = getConnection();
+            conn = this.getConnection();
             if (conn != null) {
-                ptm = conn.prepareStatement(SEARCH_USERS);
+                ptm = conn.prepareStatement("SELECT * FROM Users WHERE (firstName LIKE ? OR lastName LIKE ? OR email LIKE ? OR phone LIKE ? OR username LIKE ? OR CONCAT(firstName, ' ', lastName) LIKE ?) ORDER BY status DESC, roleid ASC");
                 String searchPattern = "%" + searchQuery + "%";
                 ptm.setString(1, searchPattern);
                 ptm.setString(2, searchPattern);
                 ptm.setString(3, searchPattern);
                 ptm.setString(4, searchPattern);
                 ptm.setString(5, searchPattern);
+                ptm.setString(6, searchPattern);
                 rs = ptm.executeQuery();
-                while (rs.next()) {
+
+                while(rs.next()) {
                     int id = rs.getInt("id");
                     String firstName = rs.getString("firstName");
                     String lastName = rs.getString("lastName");
@@ -328,6 +332,7 @@ public class UserDAO extends DBContext {
                     users.add(new UserDTO(id, firstName, lastName, email, avatar, userName, password, address, phone, roleId, status));
                 }
             }
+           
         } finally {
             if (rs != null) rs.close();
             if (ptm != null) ptm.close();
@@ -563,6 +568,48 @@ public class UserDAO extends DBContext {
         }
     }
 }
+    
+    
+    
+    public List<Object[]> getTopUsersByTotalSpent(int limit) throws SQLException {
+        List<Object[]> topUsers = new ArrayList();
+        Connection conn = null;
+        PreparedStatement ptm = null;
+        ResultSet rs = null;
+
+        try {
+            conn = this.getConnection();
+            if (conn != null) {
+                String query = "SELECT u.firstname + ' ' + u.lastname AS fullName, SUM(o.totalprice) AS totalSpent FROM Orders o JOIN Users u ON o.username = u.username WHERE o.status = 1 AND u.roleid = 2 AND u.status = 1GROUP BY u.username, u.firstname, u.lastname HAVING SUM(o.totalprice) > 0 ORDER BY totalSpent DESC";
+                ptm = conn.prepareStatement(query);
+                rs = ptm.executeQuery();
+
+                while(rs.next()) {
+                    Object[] userData = new Object[2];
+                    userData[0] = rs.getString("fullName");
+                    userData[1] = rs.getDouble("totalSpent");
+                    topUsers.add(userData);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (rs != null) {
+                rs.close();
+            }
+
+            if (ptm != null) {
+                ptm.close();
+            }
+
+            if (conn != null) {
+                conn.close();
+            }
+
+        }
+
+        return topUsers;
+    }
 //    public static void main(String[] args) throws SQLException {
 //        UserDAO dao = new UserDAO();
 //        UserDTO user = dao.checkLogin("phuuthanh2003", "1231231231");

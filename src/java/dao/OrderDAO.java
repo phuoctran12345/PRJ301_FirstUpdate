@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package dao;
 
 import utils.DBContext;
@@ -13,14 +8,11 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import model.CategoryRevenueDTO;
 import model.OrderDTO;
 import model.PaymentDTO;
 import model.UserDTO;
 
-/**
- *
- * @author HuuThanh
- */
 public class OrderDAO extends DBContext {
 
     private UserDAO uDao = new UserDAO();
@@ -207,7 +199,7 @@ public class OrderDAO extends DBContext {
         return orders;
     }
 
-        public OrderDTO getTheLatestOrder() throws SQLException {
+    public OrderDTO getTheLatestOrder() throws SQLException {
         OrderDTO order = null;
         Connection conn = null;
         PreparedStatement ptm = null;
@@ -244,6 +236,7 @@ public class OrderDAO extends DBContext {
         }
         return order;
     }
+
     public List<OrderDTO> getOrdersByUsername(String userName) throws SQLException {
         List<OrderDTO> orders = new ArrayList<>();
         Connection conn = null;
@@ -371,7 +364,7 @@ public class OrderDAO extends DBContext {
                     String userName = rs.getString("username");
                     UserDTO user = uDao.getUserByName(userName);
                     boolean status = rs.getBoolean("status");
-                    OrderDTO order = new OrderDTO(orderId, orderDate, totalPrice, payment , user, status);
+                    OrderDTO order = new OrderDTO(orderId, orderDate, totalPrice, payment, user, status);
                     orders.add(order);
                 }
             }
@@ -416,8 +409,8 @@ public class OrderDAO extends DBContext {
             }
         }
     }
-    
-    public boolean CreateNewOrder(String date,double total, PaymentDTO payment, UserDTO user) throws SQLException {
+
+    public boolean CreateNewOrder(String date, double total, PaymentDTO payment, UserDTO user) throws SQLException {
         Connection conn = null;
         PreparedStatement ptm = null;
         ResultSet rs = null;
@@ -448,7 +441,7 @@ public class OrderDAO extends DBContext {
         }
         return false;
     }
-    
+
     public List<OrderDTO> searchOrders(String searchUsername, String statusFilter) throws SQLException {
         List<OrderDTO> orders = new ArrayList<>();
         Connection conn = null;
@@ -499,13 +492,19 @@ public class OrderDAO extends DBContext {
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-            if (rs != null) rs.close();
-            if (ptm != null) ptm.close();
-            if (conn != null) conn.close();
+            if (rs != null) {
+                rs.close();
+            }
+            if (ptm != null) {
+                ptm.close();
+            }
+            if (conn != null) {
+                conn.close();
+            }
         }
         return orders;
     }
-    
+
 //
 //    public static void main(String[] args) throws SQLException {
 //        OrderDAO dao = new OrderDAO();
@@ -514,4 +513,155 @@ public class OrderDAO extends DBContext {
 //        OrderDTO order = dao.getOrdersByID("1");
 //        System.out.println(list);
 //    }
+    public List<Object[]> getTopUsersByTotalSpent(int limit) throws SQLException {
+        String sql = """
+        SELECT 
+            u.fullName,                                  -- Tên khách hàng
+            COUNT(DISTINCT o.order_id) as order_count,   -- Số đơn hàng
+            SUM(oi.price * oi.quantity) as total_spent   -- Tổng chi tiêu
+        FROM Users u
+        JOIN Orders o ON u.user_id = o.user_id
+        JOIN OrderItems oi ON o.order_id = oi.order_id
+        WHERE o.status = 'Completed'                     -- Chỉ tính đơn hàng đã hoàn thành
+        GROUP BY u.user_id, u.fullName
+        ORDER BY total_spent DESC                        -- Sắp xếp theo tổng chi tiêu giảm dần
+        LIMIT ?
+    """;
+
+        List<Object[]> result = new ArrayList<>();
+        try (Connection conn = DBContext.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, limit > 0 ? limit : 5);  // Mặc định lấy top 5 nếu không chỉ định
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                Object[] row = {
+                    rs.getString("fullName"), // Tên khách hàng
+                    rs.getInt("order_count"), // Số đơn hàng
+                    rs.getDouble("total_spent") // Tổng chi tiêu
+                };
+                result.add(row);
+            }
+        }
+        return result;
+    }
+
+    public List<CategoryRevenueDTO> getCategoryRevenue() throws SQLException {
+        List<CategoryRevenueDTO> result = new ArrayList<>();
+        String sql = """
+        SELECT 
+            c.name AS category_name,
+            SUM(oi.price * oi.quantity) AS total_revenue,
+            COUNT(DISTINCT o.order_id) AS total_orders
+        FROM Categories c
+        JOIN Products p ON c.category_id = p.category_id
+        JOIN OrderItems oi ON p.product_id = oi.product_id
+        JOIN Orders o ON oi.order_id = o.order_id
+        WHERE o.status = 'Completed'
+        GROUP BY c.category_id, c.name
+        ORDER BY total_revenue DESC
+    """;
+
+        try (Connection conn = DBContext.getConnection(); PreparedStatement ps = conn.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+                String categoryName = rs.getString("category_name");
+                double revenue = rs.getDouble("total_revenue");
+                int totalOrders = rs.getInt("total_orders");
+                result.add(new CategoryRevenueDTO(categoryName, revenue, totalOrders));
+            }
+        }
+        return result;
+    }
+
+    public List<Object[]> getTopProductRevenue(int limit) throws SQLException {
+        String sql = """
+        SELECT 
+            p.name AS product_name,
+            SUM(oi.price * oi.quantity) AS total_revenue,
+            COUNT(DISTINCT o.order_id) AS order_count
+        FROM Products p
+        JOIN OrderItems oi ON p.product_id = oi.product_id
+        JOIN Orders o ON oi.order_id = o.order_id
+        WHERE o.status = 'Completed'
+        GROUP BY p.product_id, p.name
+        ORDER BY total_revenue DESC
+        LIMIT ?
+    """;
+
+        List<Object[]> result = new ArrayList<>();
+        try (Connection conn = DBContext.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, limit);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    Object[] row = {
+                        rs.getString("product_name"),
+                        rs.getDouble("total_revenue"),
+                        rs.getInt("order_count")
+                    };
+                    result.add(row);
+                }
+            }
+        }
+        return result;
+    }
+
+    public void updateOrderStatus(String orderId, String status) {
+        String sql = "UPDATE [Order] SET Status = ? WHERE OrderID = ?";
+        try {
+            Connection conn = DBContext.getConnection();
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ps.setString(1, status);
+            ps.setString(2, orderId);
+            ps.executeUpdate();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    //=======================
+    //THP 
+    // Thêm vào class OrderDAO
+    private static final String CREATE_VNPAY_ORDER = "INSERT INTO [Orders] "
+            + "(orderdate, totalprice, paymentid, username, status, shipping_address, shipping_phone) "
+            + "VALUES (GETDATE(), ?, 2, ?, 0, ?, ?)";
+
+    public int createVNPayOrder(double totalPrice, String username, String shippingAddress, String shippingPhone) throws SQLException {
+        Connection conn = null;
+        PreparedStatement ptm = null;
+        ResultSet rs = null;
+        int orderId = 0;
+
+        try {
+            conn = getConnection();
+            if (conn != null) {
+                ptm = conn.prepareStatement(CREATE_VNPAY_ORDER, PreparedStatement.RETURN_GENERATED_KEYS);
+                ptm.setDouble(1, totalPrice);
+                ptm.setString(2, username);
+                ptm.setString(3, shippingAddress);
+                ptm.setString(4, shippingPhone);
+
+                int rowsAffected = ptm.executeUpdate();
+                if (rowsAffected > 0) {
+                    rs = ptm.getGeneratedKeys();
+                    if (rs.next()) {
+                        orderId = rs.getInt(1);
+                    }
+                }
+            }
+        } finally {
+            if (rs != null) {
+                rs.close();
+            }
+            if (ptm != null) {
+                ptm.close();
+            }
+            if (conn != null) {
+                conn.close();
+            }
+        }
+        return orderId;
+    }
+
 }

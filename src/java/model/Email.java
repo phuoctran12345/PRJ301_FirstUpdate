@@ -12,6 +12,7 @@ import jakarta.mail.Session;
 import jakarta.mail.Transport;
 import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
+import java.util.List;
 
 public class Email {
     // Các hằng số cho cấu hình SMTP
@@ -87,29 +88,29 @@ public class Email {
                 "<p>Nếu cần hỗ trợ gấp, vui lòng gọi hotline: 1900 9090</p>");
     }
     
-//    public String messageNewOrder(String name, int quantity, double total) {
-//        return createEmailTemplate("Đặt hàng thành công",
-//                "<p>Chào " + name + ",</p>" +
-//                "<p>Đơn hàng của bạn đã được xác nhận thành công.</p>" +
-//                "<p>Chi tiết đơn hàng:</p>" +
-//                "<ul>" +
-//                "<li>Số lượng sản phẩm: <strong>" + quantity + "</strong></li>" +
-//                "<li>Tổng tiền: <strong>" + String.format("%,.0f", total) + " VNĐ</strong></li>" +
-//                "</ul>" +
-//                "<p>Thời gian giao hàng dự kiến: 3-7 ngày</p>");
-//    }
-public String messageNewOrder(String name, int quantity, double total) {
-    // Format total price with thousands separator
-    String formattedTotal = String.format("%,.0f", total);
-    
+    public String messageNewOrder(String name, int quantity, double total, List<CartItem> cartItems) {
+    // Tạo chuỗi HTML để hiển thị chi tiết các sản phẩm
+    StringBuilder itemsDetail = new StringBuilder();
+    if (cartItems != null && !cartItems.isEmpty()) {
+        for (CartItem item : cartItems) {
+            itemsDetail.append("<li>")
+                       .append(item.getProduct().getName())
+                       .append(" - Số lượng: <strong>").append(item.getQuantity()).append("</strong>")
+                       .append(" - Giá: <strong>").append(String.format("%,.0f", item.getProduct().getSalePrice())).append(" VNĐ</strong>")
+                       .append("</li>");
+        }
+    }
+
+    // Tạo nội dung email với chi tiết sản phẩm
     return createEmailTemplate("Đặt hàng thành công",
             "<p>Chào " + name + ",</p>" +
             "<p>Đơn hàng của bạn đã được xác nhận thành công.</p>" +
             "<p>Chi tiết đơn hàng:</p>" +
             "<ul>" +
-            "<li>Số lượng sản phẩm: <strong>" + quantity + "</strong></li>" +
-            "<li>Tổng tiền: <strong>" + formattedTotal + " VNĐ</strong></li>" +
+            itemsDetail.toString() +  // Thêm chi tiết sản phẩm vào đây
             "</ul>" +
+            "<p>Tổng số lượng sản phẩm: <strong>" + quantity + "</strong></p>" +
+            "<p>Tổng tiền: <strong>" + String.format("%,.0f", total) + " VNĐ</strong></p>" +
             "<p>Thời gian giao hàng dự kiến: 3-7 ngày</p>");
 }
 
@@ -175,9 +176,9 @@ public String messageNewOrder(String name, int quantity, double total) {
                 + content
                 + "</div>"
                 + "<div class='footer'>"
-                + "<p>ClothesShop - Hỗ trợ: 1900 9090</p>"
-                + "<p>Email: clothesshop@gmail.com</p>"
-                + "<p>Địa chỉ: Ho Chi Minh City</p>"
+                + "<p>ClothesShop - Hỗ trợ: 911 113</p>"
+                + "<p>Email: phuocthde180577@fpt.edu.vn</p>"
+                + "<p>Địa chỉ: Da Nang City</p>"
                 + "</div>"
                 + "</div>"
                 + "</body>"

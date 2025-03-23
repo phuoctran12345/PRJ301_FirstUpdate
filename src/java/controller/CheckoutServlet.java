@@ -1,6 +1,6 @@
 package controller;
 
-import utils.CartUtil;
+import service.CartService; // Replace CartUtil with CartService
 import dao.OrderDAO;
 import dao.OrderItemDAO;
 import dao.PaymentDAO;
@@ -59,7 +59,7 @@ public class CheckoutServlet extends HttpServlet {
         ProductDAO productDAO = new ProductDAO();
         OrderDAO orderDAO = new OrderDAO();
         OrderItemDAO orderItemDAO = new OrderItemDAO();
-        CartUtil cartUtil = new CartUtil();
+        CartService cartService = new CartService(); // Replace CartUtil with CartService
         Email emailSender = new Email();
 
         // Get session and basic data
@@ -103,15 +103,17 @@ public class CheckoutServlet extends HttpServlet {
                     OrderDTO latestOrder = orderDAO.getTheLatestOrder();
 
                     // Send confirmation email
+                    // Trong phương thức handleCheckout
+// Send confirmation email
                     String emailSubject = emailSender.subjectNewOrder();
-                    String emailMessage = emailSender.messageNewOrder(user.getFirstName(), totalItems, totalPrice);
+                    String emailMessage = emailSender.messageNewOrder(user.getFirstName(), totalItems, totalPrice, cartItems); // Thêm cartItems
                     emailSender.sendEmail(emailSubject, emailMessage, user.getEmail());
 
                     // Save order details and update stock
                     updateOrderDetailsAndStock(cartItems, latestOrder, orderItemDAO, productDAO);
 
                     // Clear cart
-                    clearCart(session, request, response, cartUtil);
+                    clearCart(session, request, response, cartService); // Use cartService instead of cartUtil
                 } else {
                     message = "Failed to place order.";
                 }
@@ -175,10 +177,10 @@ public class CheckoutServlet extends HttpServlet {
 
     // Clear the cart after successful checkout
     private void clearCart(HttpSession session, HttpServletRequest request,
-            HttpServletResponse response, CartUtil cartUtil) {
+            HttpServletResponse response, CartService cartService) { // Replace CartUtil with CartService
         session.setAttribute("CART", null);
-        Cookie cartCookie = cartUtil.getCookieByName(request, "Cart");
-        cartUtil.saveCartToCookie(request, response, "[]");
+        Cookie cartCookie = cartService.getCookieByName(request, "Cart");
+        cartService.saveCartToCookie(request, response, "[]");
     }
 
     @Override

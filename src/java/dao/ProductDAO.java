@@ -923,6 +923,45 @@ public class ProductDAO extends DBContext {
         return products;
     }
     
+    // MĐH
+   public List<Object[]> getTopProductsByOrderCount(int limit) throws SQLException {
+      List<Object[]> topProducts = new ArrayList();
+      Connection conn = null;
+      PreparedStatement ptm = null;
+      ResultSet rs = null;
+
+      try {
+         conn = this.getConnection();
+         if (conn != null) {
+            String query = "SELECT p.id, p.productname, COUNT(oi.order_id) as orderCount FROM Products p LEFT JOIN OrderItem oi ON p.id = oi.product_id WHERE p.status = 1 GROUP BY p.id, p.productname ORDER BY orderCount DESC";
+            ptm = conn.prepareStatement(query);
+            rs = ptm.executeQuery();
+
+            while(rs.next()) {
+               Object[] productData = new Object[]{rs.getInt("id"), rs.getString("productname"), rs.getInt("orderCount")};
+               topProducts.add(productData);
+            }
+         }
+      } catch (Exception var11) {
+         var11.printStackTrace();
+      } finally {
+         if (rs != null) {
+            rs.close();
+         }
+
+         if (ptm != null) {
+            ptm.close();
+         }
+
+         if (conn != null) {
+            conn.close();
+         }
+
+      }
+
+      return topProducts;
+   }
+    
 
 //    public static void main(String[] args) throws SQLException {
 //        ProductDAO dao = new ProductDAO();

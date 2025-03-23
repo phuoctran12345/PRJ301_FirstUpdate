@@ -1,7 +1,8 @@
 package controller;
 
-import utils.WishlistUtil;
-import utils.CartUtil;
+import service.IWishlistService;
+import service.WishlistService; // Thay thế WishlistUtil bằng WishlistService
+import service.CartService; // Replace CartUtil with CartService
 import dao.CategoryDAO;
 import dao.ProductDAO;
 import dao.SupplierDAO;
@@ -20,6 +21,7 @@ import model.CategoryDTO;
 import model.ProductDTO;
 import model.SupplierDTO;
 import model.TypeDTO;
+
 @WebServlet(name = "DispatchServlet", urlPatterns = {"/DispatchServlet"})
 public class DispatchServlet extends HttpServlet {
 
@@ -118,8 +120,8 @@ public class DispatchServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        CartUtil cartUtil = new CartUtil();
-        WishlistUtil wishlistUtil = new WishlistUtil();
+        CartService cartService = new CartService(); // Replace CartUtil with CartService
+        IWishlistService wishlistService = new WishlistService(); // Thay WishlistUtil bằng IWishlistService
 
         try {
             HttpSession session = request.getSession();
@@ -128,9 +130,9 @@ public class DispatchServlet extends HttpServlet {
 
             // Load cart from session or cookie
             if (session.getAttribute("CART") == null) {
-                Cookie cartCookie = cartUtil.getCookieByName(request, "Cart");
+                Cookie cartCookie = cartService.getCookieByName(request, "Cart"); // Use cartService
                 if (cartCookie != null) {
-                    cartItems = cartUtil.getCartFromCookie(cartCookie);
+                    cartItems = cartService.getCartFromCookie(cartCookie); // Use cartService
                 }
             } else {
                 cartItems = (List<CartItem>) session.getAttribute("CART");
@@ -138,9 +140,9 @@ public class DispatchServlet extends HttpServlet {
 
             // Load wishlist from session or cookie
             if (session.getAttribute("WISHLIST") == null) {
-                Cookie wishlistCookie = wishlistUtil.getCookieByName(request, "Wishlist");
+                Cookie wishlistCookie = wishlistService.getCookieByName(request, "Wishlist"); // Sử dụng wishlistService
                 if (wishlistCookie != null) {
-                    wishlistItems = wishlistUtil.getWishlistFromCookie(wishlistCookie);
+                    wishlistItems = wishlistService.getWishlistFromCookie(wishlistCookie); // Sử dụng wishlistService
                 }
             } else {
                 wishlistItems = (List<ProductDTO>) session.getAttribute("WISHLIST");
