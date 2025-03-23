@@ -1,318 +1,295 @@
-/* darkmode.css */
 
-/* Áp dụng các biến CSS cho dark mode */
-[data-theme="dark"] {
-    --background-color: #1a1a1a;
-    --text-color: #ffffff;
-    --header-bg: #2d2d2d;
-    --header-top-bg: #333333;
-    --header-middel-bg: #2d2d2d;
-    --link-color: #66b3ff;
-    --button-bg: #444444;
-    --button-text: #ffffff;
-    --cart-bg: #333333;
-    --cart-text: #ffffff;
-    --search-bg: #444444;
-    --search-text: #ffffff;
-    --menu-bg: #2d2d2d;
-    --menu-text: #ffffff;
-    --sidebar-bg: #2d2d2d;
-    --block-title-color: #000000;
-    --product-bg: #333333;
-    --product-text: #ffffff;
-    --banner-bg: #2d2d2d;
-    --banner-text: #ffffff;
-    --brand-bg: #333333;
-    --discount-bg: #555555;
-    --new-label-bg: #555555;
+/* Light Mode mặc định */
+body {
+    background-color: #e5e5e5; /* Nền xám nhạt cho Light Mode */
+    color: #333333; /* Chữ tối trong Light Mode */
+    transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-/* Body */
-[data-theme="dark"] body {
-    background-color: var(--background-color);
-    color: var(--text-color);
-}
-
-/* Header */
-[data-theme="dark"] .header_area {
-    background-color: var(--header-bg);
-    border-bottom: none;
-    box-shadow: none;
-}
-
-[data-theme="dark"] .header_top {
-    background-color: var(--header-top-bg);
-}
-
-[data-theme="dark"] .header_links a {
-    color: var(--link-color);
-}
-
-[data-theme="dark"] button#theme-toggle {
-    background-color: var(--button-bg);
-    color: var(--button-text);
-}
-
-[data-theme="dark"] .header_middel {
-    background-color: var(--header-middel-bg);
-}
-
-[data-theme="dark"] .search_bar {
-    background-color: var(--search-bg);
-}
-
-[data-theme="dark"] .search_bar input {
-    color: var(--search-text);
-}
-
-[data-theme="dark"] .search_bar button {
-    background-color: var(--button-bg);
-    color: var(--button-text);
-}
-
-[data-theme="dark"] .shopping_cart {
-    color: var(--text-color);
-}
-
-[data-theme="dark"] .shopping_cart a {
-    color: var(--text-color);
-}
-
-[data-theme="dark"] .mini_cart {
-    background-color: var(--cart-bg);
-    color: var(--cart-text);
-}
-
-[data-theme="dark"] .cart_item {
-    border-bottom: 1px solid var(--button-bg);
-}
-
-[data-theme="dark"] .cart_info a {
-    color: var(--link-color);
-}
-
-[data-theme="dark"] .total_price {
-    color: var(--cart-text);
-}
-
-[data-theme="dark"] .cart_button a {
-    background-color: var(--button-bg);
-    color: var(--button-text);
-}
-
-[data-theme="dark"] .header_bottom {
-    background-color: var(--menu-bg);
-}
-
-/* Main Menu */
-[data-theme="dark"] .main_menu nav a {
-    color: var(--menu-text);
-}
-
-[data-theme="dark"] .main_menu nav a:hover,
-[data-theme="dark"] .main_menu nav .active a {
-    color: var(--link-color);
-}
-
-/* Home Section */
-[data-theme="dark"] .pos_page,
-[data-theme="dark"] .pos_page_inner,
-[data-theme="dark"] .pos_home_section {
-    background-color: var(--background-color);
-}
-
-/* Sidebar */
-[data-theme="dark"] .sidebar_widget {
-    background-color: var(--sidebar-bg);
-}
-
-/* Block Title */
-[data-theme="dark"] .block_title {
-    position: relative;
-    z-index: 20;
-    background-color: #000000;
-    padding: 20px 15px; /* Giảm padding để giảm chiều cao khung đen */
-    margin: 50px 0;
-    border-radius: 5px;
-    border-top: none;
-    border-bottom: none;
-    box-shadow: none;
-}
-
-/* Tạo khung trắng bằng pseudo-element */
-[data-theme="dark"] .block_title::before {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%); /* Căn giữa khung trắng */
-    width: 180px; /* Điều chỉnh chiều rộng để vừa với tiêu đề */
-    height: 40px; /* Giảm chiều cao khung trắng để vừa khít với tiêu đề */
+.container,
+.admin-container {
     background-color: #ffffff;
-    z-index: -1;
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    box-sizing: border-box;
+    transition: background-color 0.3s ease;
+}
+
+.pos_page,
+.admin-page {
+    background-color: transparent;
+}
+
+.footer_area,
+.admin-footer {
+    background-color: #ffffff;
+    color: #000000;
+}
+
+.footer_area h3,
+.footer_area p,
+.footer_area ul li a,
+.admin-footer h3,
+.admin-footer p,
+.admin-footer ul li a {
+    color: #000000;
+}
+
+.footer_area ul li a:hover,
+.admin-footer ul li a:hover {
+    color: #018576;
+}
+
+.sidebar_widget,
+.admin-sidebar {
+    background-color: #ffffff;
+    color: #333333;
+}
+
+/* Admin-specific Light Mode */
+.app-header {
+    background-color: #ffffff;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    padding: 10px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid #e0e0e0;
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+.app-sidebar__toggle {
+    color: #333333;
+    font-size: 20px;
+    padding: 8px 12px;
     border-radius: 5px;
+    transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-[data-theme="dark"] .block_title h3 {
-    color: var(--block-title-color);
-    text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.5);
+.app-sidebar__toggle:hover {
+    background-color: #f0f0f0;
+    color: #018576;
+}
+
+.app-nav {
+    display: flex;
+    align-items: center;
+    gap: 10px; /* Khoảng cách giữa các nút */
     margin: 0;
-    position: relative;
-    z-index: 1;
+    padding: 0;
+    list-style: none;
 }
 
-[data-theme="dark"] .block_title h3 a {
-    color: var(--link-color);
+.app-nav__item,
+.theme-toggle-btn {
+    background-color: #f0f0f0;
+    color: #333333;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 20px; /* Bo góc mạnh hơn cho nút */
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px; /* Khoảng cách giữa icon và text */
+    transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-[data-theme="dark"] .block_content p {
-    color: var(--text-color);
-}
-
-[data-theme="dark"] .block_content a {
-    color: var(--link-color);
-}
-
-/* Banner Slider */
-[data-theme="dark"] .banner_slider {
-    background-color: var(--banner-bg);
-    position: relative;
-    z-index: 1;
-    border-bottom: none;
-    box-shadow: none;
-}
-
-[data-theme="dark"] .single_slider {
-    position: relative;
-    z-index: 1;
-}
-
-[data-theme="dark"] .slider_content h1,
-[data-theme="dark"] .slider_content p {
-    color: var(--banner-text);
-}
-
-[data-theme="dark"] .slider_content a {
-    background-color: #666666;
-    color: var(--button-text);
-    border: 1px solid #888888;
-}
-
-[data-theme="dark"] .slider_content a:hover {
-    background-color: #777777;
-}
-
-/* Product Areas */
-[data-theme="dark"] .new_product_area,
-[data-theme="dark"] .featured_product {
-    background-color: var(--background-color);
-    position: relative;
-    z-index: 1;
-}
-
-[data-theme="dark"] .single_product {
-    background-color: #3a3a3a;
-    color: var(--product-text);
-    box-shadow: 0 2px 5px rgba(255, 255, 255, 0.05);
-}
-
-[data-theme="dark"] .img_icone img,
-[data-theme="dark"] .hot_img img {
-    background-color: var(--new-label-bg);
-}
-
-[data-theme="dark"] .discount {
-    background-color: var(--discount-bg);
-    color: #ffca28;
-}
-
-[data-theme="dark"] .product_content {
-    color: var(--product-text);
-}
-
-[data-theme="dark"] .current_price {
-    color: var(--text-color);
-}
-
-[data-theme="dark"] .old_price {
-    color: #888888;
-}
-
-[data-theme="dark"] .product_title a {
+.app-nav__item:hover,
+.theme-toggle-btn:hover {
+    background-color: #018576;
     color: #ffffff;
 }
 
-[data-theme="dark"] .product_title a:hover {
-    color: var(--link-color);
+.theme-toggle-btn:focus,
+.app-nav__item:focus {
+    outline: 2px solid #018576;
+    outline-offset: 2px;
 }
 
-[data-theme="dark"] .product_info ul li a,
-[data-theme="dark"] .product_info ul li button {
-    color: var(--link-color);
-    background-color: var(--button-bg);
+.theme-icon {
+    font-size: 16px;
 }
 
-/* Banner Area */
-[data-theme="dark"] .banner_area {
-    background-color: var(--banner-bg);
-    position: relative;
-    z-index: 1;
+.nav-text {
+    font-size: 14px;
 }
 
-[data-theme="dark"] .banner_title p {
-    color: var(--banner-text);
+.app-sidebar {
+    background-color: #ffffff;
+    width: 250px; /* Đảm bảo sidebar có chiều rộng cố định */
+    height: 100vh;
+    position: fixed;
+    top: 0;
+    left: 0;
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.3s ease;
 }
 
-/* Brand Logo */
-[data-theme="dark"] .brand_logo {
-    background-color: var(--brand-bg);
-    position: relative;
-    z-index: 1;
+.app-sidebar__user {
+    background-color: #f8f9fa;
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    transition: background-color 0.3s ease;
 }
 
-[data-theme="dark"] .single_brand img {
-    filter: brightness(120%) invert(1);
+.app-sidebar__user-avatar {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    object-fit: cover;
 }
 
-/* Footer */
-[data-theme="dark"] .footer_area {
-    background-color: var(--background-color);
-    color: var(--text-color);
+.app-sidebar__user-name {
+    color: #333333;
+    font-size: 16px;
+    margin: 0;
+transition: color 0.3s ease;
 }
 
-[data-theme="dark"] .footer_top {
-    background-color: var(--header-top-bg);
+.app-sidebar__user-designation {
+    color: #666666;
+    font-size: 14px;
+    margin: 0;
+    transition: color 0.3s ease;
 }
 
-[data-theme="dark"] .footer_widget h3 {
-    color: var(--block-title-color);
+.app-menu {
+    padding: 10px 0;
+    list-style: none;
 }
 
-[data-theme="dark"] .footer_widget p {
-    color: var(--text-color);
+.app-menu__item {
+    display: flex;
+    align-items: center;
+    padding: 12px 20px;
+    color: #333333;
+    font-size: 15px;
+    transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-[data-theme="dark"] .footer_widget_contect p,
-[data-theme="dark"] .footer_widget_contect a {
-    color: var(--text-color);
+.app-menu__item:hover,
+.app-menu__item.active {
+    background-color: #018576;
+    color: #ffffff;
 }
 
-[data-theme="dark"] .footer_widget_contect a:hover {
-    color: var(--link-color);
+.app-menu__icon {
+    margin-right: 10px;
+    font-size: 18px;
 }
 
-[data-theme="dark"] .footer_widget_contect i {
-    color: var(--link-color);
+.app-menu__label {
+    flex: 1;
 }
 
-[data-theme="dark"] .footer_bottom {
-    background-color: var(--menu-bg);
+/* Dark Mode cho toàn bộ trang (bao gồm admin) */
+body.dark-mode {
+    background-color: #222222;
+    color: #ffffff;
 }
 
-[data-theme="dark"] .copyright_area p {
-    color: var(--text-color);
+/* Container và các khu vực chính (bao gồm admin) */
+body.dark-mode .container,
+body.dark-mode .admin-container,
+body.dark-mode .pos_page,
+body.dark-mode .admin-page,
+body.dark-mode .new_product_area,
+body.dark-mode .featured_product,
+body.dark-mode .banner_area,
+body.dark-mode .brand_logo,
+body.dark-mode .admin-content {
+    background-color: #222222 !important;
 }
 
-[data-theme="dark"] .copyright_area a {
-    color: var(--link-color);
+body.dark-mode .pos_page_inner,
+body.dark-mode .admin-content-inner {
+    background-color: transparent;
+}
+
+/* Header và Navigation (bao gồm admin) */
+body.dark-mode .header_area,
+body.dark-mode .app-header,
+body.dark-mode .footer_area,
+body.dark-mode .admin-footer {
+    background-color: #222222;
+    border-bottom: 1px solid #444444;
+}
+
+body.dark-mode .app-sidebar__toggle {
+    color: #ffffff;
+}
+
+body.dark-mode .app-sidebar__toggle:hover {
+    background-color: #333333;
+    color: #018576;
+}
+
+body.dark-mode .main_menu,
+body.dark-mode .app-nav {
+    background-color: #222222;
+}
+
+body.dark-mode .main_menu nav > ul > li > a,
+body.dark-mode .app-menu__item,
+body.dark-mode .app-nav__item,
+body.dark-mode .theme-toggle-btn {
+    color: #ffffff;
+}
+
+body.dark-mode .app-nav__item,
+body.dark-mode .theme-toggle-btn {
+    background-color: #333333;
+}
+
+body.dark-mode .app-nav__item:hover,
+body.dark-mode .theme-toggle-btn:hover {
+    background-color: #018576;
+    color: #ffffff;
+}
+
+/* Sidebar (bao gồm admin sidebar) */
+body.dark-mode .sidebar_widget,
+body.dark-mode .app-sidebar {
+    background-color: #2c2c2c;
+    color: #ffffff;
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.3);
+}
+
+body.dark-mode .app-sidebar__user {
+    background-color: #333333;
+}
+
+body.dark-mode .app-sidebar__user-name {
+    color: #ffffff;
+}
+
+body.dark-mode .app-sidebar__user-designation {
+    color: #cccccc;
+}
+
+body.dark-mode .app-menu__item {
+    color: #ffffff;
+}
+
+body.dark-mode .app-menu__item:hover,
+body.dark-mode .app-menu__item.active {
+    background-color: #018576;
+    color: #ffffff;
+}
+
+body.dark-mode .sidebar_widget h3,
+body.dark-mode .sidebar_widget ul li a,
+body.dark-mode .app-sidebar h3,
+body.dark-mode .app-sidebar ul li a {
+    color: #ffffff;
+}
+
+body.dark-mode .sidebar_widget ul li a:hover,
+body.dark-mode .app-sidebar ul li a:hover {
+    color: #cccccc;
 }

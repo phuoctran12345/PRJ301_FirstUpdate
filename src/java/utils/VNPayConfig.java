@@ -1,29 +1,29 @@
 package utils;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
+import jakarta.servlet.http.HttpServletRequest;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
-import java.util.*;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
+import java.util.TimeZone;
+import java.util.TreeMap;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
-import jakarta.servlet.http.HttpServletRequest;
 
 public class VNPayConfig {
-
-    public static final String vnp_Version = "2.1.0";
-    public static final String vnp_Command = "pay";
-    public static final String vnp_TmnCode = "03ZW1F8X";
-    public static final String vnp_HashSecret = "7QKB7FZT7BNEE7K2ZHM7IXEYQKCIWRL5";
-    public static final String vnp_Url = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html";
-    public static final String vnp_ReturnUrl = "http://localhost:8080/ShopUpdate/VNPayReturn";
-    public static final String vnp_ApiUrl = "https://sandbox.vnpayment.vn/merchant_webapi/api/transaction";
-    public static final String vnp_PayUrl = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html";
-
+    public static String vnp_PayUrl = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html";
+    public static String vnp_ReturnUrl = "http://localhost:8080/ShopUpdate/vnpay_return";
+    public static String vnp_TmnCode = "03ZW1F8X";
+    public static String vnp_HashSecret = "7QKB7FZT7BNEE7K2ZHM7IXEYQKCIWRL5";
+    public static String vnp_apiUrl = "https://sandbox.vnpayment.vn/merchantv2/";
+    
     public static String getRandomNumber(int len) {
         Random rnd = new Random();
         String chars = "0123456789";
@@ -33,7 +33,25 @@ public class VNPayConfig {
         }
         return sb.toString();
     }
-
+    
+    public static String hmacSHA512(String key, String data) {
+        try {
+            Mac sha512_HMAC = Mac.getInstance("HmacSHA512");
+            byte[] hmacKeyBytes = key.getBytes();
+            SecretKeySpec secretKey = new SecretKeySpec(hmacKeyBytes, "HmacSHA512");
+            sha512_HMAC.init(secretKey);
+            byte[] messageBytes = data.getBytes(StandardCharsets.UTF_8);
+            byte[] result = sha512_HMAC.doFinal(messageBytes);
+            StringBuilder sb = new StringBuilder(2 * result.length);
+            for (byte b : result) {
+                sb.append(String.format("%02x", b & 0xff));
+            }
+            return sb.toString();
+        } catch (Exception e) {
+            return "";
+        }
+    }
+    
     public static String getIpAddress(HttpServletRequest request) {
         String ipAddress;
         try {
@@ -46,145 +64,69 @@ public class VNPayConfig {
         }
         return ipAddress;
     }
+    
+    public static void main(String[] args) {
+        String vnp_Version = "2.1.0";
+        String vnp_Command = "pay";
+        String orderType = "other";
+        long amount = 1000000 * 100; // 1,000,000 VND
+        String bankCode = "NCB";
+        
+        String vnp_TxnRef = getRandomNumber(8);
+        String vnp_IpAddr = "127.0.0.1";
 
-    public static String getQueryUrl(Map<String, String> params) {
-        List<String> fieldNames = new ArrayList<>(params.keySet());
+        Map<String, String> vnp_Params = new TreeMap<>();
+        vnp_Params.put("vnp_Version", vnp_Version);
+        vnp_Params.put("vnp_Command", vnp_Command);
+        vnp_Params.put("vnp_TmnCode", vnp_TmnCode);
+        vnp_Params.put("vnp_Amount", String.valueOf(amount));
+        vnp_Params.put("vnp_CurrCode", "VND");
+        vnp_Params.put("vnp_BankCode", bankCode);
+        vnp_Params.put("vnp_TxnRef", vnp_TxnRef);
+        vnp_Params.put("vnp_OrderInfo", "Thanh toan don hang:" + vnp_TxnRef);
+        vnp_Params.put("vnp_OrderType", orderType);
+        vnp_Params.put("vnp_Locale", "vn");
+        vnp_Params.put("vnp_ReturnUrl", vnp_ReturnUrl);
+        vnp_Params.put("vnp_IpAddr", vnp_IpAddr);
+
+        Calendar cld = Calendar.getInstance(TimeZone.getTimeZone("Etc/GMT+7"));
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmss");
+        String vnp_CreateDate = formatter.format(cld.getTime());
+        vnp_Params.put("vnp_CreateDate", vnp_CreateDate);
+        
+        cld.add(Calendar.MINUTE, 15);
+        String vnp_ExpireDate = formatter.format(cld.getTime());
+        vnp_Params.put("vnp_ExpireDate", vnp_ExpireDate);
+
+        List<String> fieldNames = new ArrayList<>(vnp_Params.keySet());
         Collections.sort(fieldNames);
         StringBuilder hashData = new StringBuilder();
         StringBuilder query = new StringBuilder();
-        Iterator<String> itr = fieldNames.iterator();
         
+        Iterator<String> itr = fieldNames.iterator();
         while (itr.hasNext()) {
             String fieldName = itr.next();
-            String fieldValue = params.get(fieldName);
+            String fieldValue = vnp_Params.get(fieldName);
             if ((fieldValue != null) && (fieldValue.length() > 0)) {
                 hashData.append(fieldName);
                 hashData.append('=');
-                hashData.append(URLEncoder.encode(fieldValue, StandardCharsets.UTF_8));
+                hashData.append(URLEncoder.encode(fieldValue, StandardCharsets.US_ASCII));
+                query.append(URLEncoder.encode(fieldName, StandardCharsets.US_ASCII));
+                query.append('=');
+                query.append(URLEncoder.encode(fieldValue, StandardCharsets.US_ASCII));
+                
                 if (itr.hasNext()) {
+                    query.append('&');
                     hashData.append('&');
                 }
             }
         }
-        
-        String queryUrl = hashData.toString();
+
+        String queryUrl = query.toString();
         String vnp_SecureHash = hmacSHA512(vnp_HashSecret, hashData.toString());
         queryUrl += "&vnp_SecureHash=" + vnp_SecureHash;
+        String paymentUrl = vnp_PayUrl + "?" + queryUrl;
         
-        return queryUrl;
-    }
-
-    public static String hmacSHA512(final String key, final String data) {
-        try {
-            if (key == null || data == null) {
-                throw new NullPointerException();
-            }
-            final Mac hmac512 = Mac.getInstance("HmacSHA512");
-            byte[] hmacKeyBytes = key.getBytes();
-            final SecretKeySpec secretKey = new SecretKeySpec(hmacKeyBytes, "HmacSHA512");
-            hmac512.init(secretKey);
-            byte[] dataBytes = data.getBytes(StandardCharsets.UTF_8);
-            byte[] result = hmac512.doFinal(dataBytes);
-            StringBuilder sb = new StringBuilder(2 * result.length);
-            for (byte b : result) {
-                sb.append(String.format("%02x", b & 0xff));
-            }
-            return sb.toString();
-        } catch (Exception ex) {
-            return "";
-        }
-    }
-
-    public static void main(String[] args) {
-        try {
-            System.out.println("Testing VNPAY connection...");
-            testConnection(vnp_ApiUrl, "API URL");
-            testConnection(vnp_PayUrl, "Payment URL");
-            testConnection(vnp_ReturnUrl, "Return URL");
-            testHashSecret();
-        } catch (Exception e) {
-            System.out.println("Error testing VNPAY configuration: " + e.getMessage());
-            e.printStackTrace();
-        }
-    }
-
-    private static void testConnection(String urlStr, String name) {
-        try {
-            URL url = new URL(urlStr);
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-
-            if (urlStr.equals(vnp_ApiUrl)) {
-                String testData = "{\"orderId\":\"test123\"}";
-                byte[] postData = testData.getBytes(StandardCharsets.UTF_8);
-
-                conn.setRequestMethod("POST");
-                conn.setRequestProperty("Content-Type", "application/json");
-                conn.setRequestProperty("Content-Length", String.valueOf(postData.length));
-                conn.setDoOutput(true);
-
-                try (OutputStream os = conn.getOutputStream()) {
-                    os.write(postData);
-                    os.flush();
-                }
-            } else {
-                conn.setRequestMethod("GET");
-            }
-
-            conn.setConnectTimeout(5000);
-            conn.setReadTimeout(5000);
-
-            int responseCode = conn.getResponseCode();
-            System.out.println(name + " Kiểm tra kết nối:");
-            System.out.println("Mã phản hồi: " + responseCode);
-
-            try (BufferedReader br = new BufferedReader(
-                    new InputStreamReader(
-                            responseCode < 400 ? conn.getInputStream() : conn.getErrorStream()))) {
-                String line;
-                StringBuilder response = new StringBuilder();
-                while ((line = br.readLine()) != null) {
-                    response.append(line);
-                }
-                if (response.length() > 0) {
-                    System.out.println("Phản hồi: " + response.toString());
-                }
-            }
-
-            System.out.println("Trạng thái: " + (responseCode < 400 ? "THÀNH CÔNG" : "THẤT BẠI"));
-            System.out.println("------------------------");
-
-        } catch (Exception e) {
-            System.out.println(name + " Kết nối THẤT BẠI:");
-            System.out.println("Lỗi: " + e.getMessage());
-            System.out.println("------------------------");
-        }
-    }
-
-    private static void testHashSecret() {
-        try {
-            String testData = "test_" + new Random().nextInt(1000);
-            MessageDigest digest = MessageDigest.getInstance("SHA-256");
-            byte[] hash = digest.digest((testData + vnp_HashSecret).getBytes(StandardCharsets.UTF_8));
-
-            StringBuilder hexString = new StringBuilder();
-            for (byte b : hash) {
-                String hex = Integer.toHexString(0xff & b);
-                if (hex.length() == 1) {
-                    hexString.append('0');
-                }
-                hexString.append(hex);
-            }
-
-            System.out.println("Hash Secret Test:");
-            System.out.println("Test Data: " + testData);
-            System.out.println("Hashed Result: " + hexString.toString());
-            System.out.println("Status: SUCCESS");
-            System.out.println("------------------------");
-
-        } catch (Exception e) {
-            System.out.println("Hash Secret Test FAILED:");
-            System.out.println("Error: " + e.getMessage());
-            System.out.println("------------------------");
-        }
+        System.out.println("Payment URL: " + paymentUrl);
     }
 }

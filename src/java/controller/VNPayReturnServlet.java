@@ -22,74 +22,81 @@ public class VNPayReturnServlet extends HttpServlet {
             throws ServletException, IOException {
         Map<String, String> vnp_Params = new HashMap<>();
         for (Enumeration params = request.getParameterNames(); params.hasMoreElements();) {
-            String fieldName = (String) params.nextElement();
-            String fieldValue = request.getParameter(fieldName);
-            if ((fieldValue != null) && (fieldValue.length() > 0)) {
-                vnp_Params.put(fieldName, fieldValue);
+            String tenTruong = (String) params.nextElement();
+            String giaTri = request.getParameter(tenTruong);
+            if ((giaTri != null) && (giaTri.length() > 0)) {
+                vnp_Params.put(tenTruong, giaTri);
             }
         }
         
-        String vnp_SecureHash = request.getParameter("vnp_SecureHash");
-        if (vnp_SecureHash != null) {
-            vnp_Params.remove("vnp_SecureHash");
-            String signValue = VNPayConfig.hmacSHA512(VNPayConfig.vnp_HashSecret, vnp_Params.toString());
-            if (signValue.equals(vnp_SecureHash)) {
-                if ("00".equals(request.getParameter("vnp_ResponseCode"))) {
-                    // Giao dịch thành công
-                    HttpSession session = request.getSession();
-                    UserDTO user = (UserDTO) session.getAttribute("LOGIN_USER");
-                    List<CartItem> cartItems = (List<CartItem>) session.getAttribute("cart");
-                    
-                    if (user != null && cartItems != null) {
-                        try {
-                            OrderDAO orderDAO = new OrderDAO();
-                            double totalAmount = Double.parseDouble(vnp_Params.get("vnp_Amount")) / 100;
-                            String shippingAddress = (String) session.getAttribute("shippingAddress");
-                            String shippingPhone = (String) session.getAttribute("shippingPhone");
-                            
-                            // Create new VNPAY order
-                            int orderId = orderDAO.createVNPayOrder(
-                                totalAmount,
-                                user.getUserName(),
-                                shippingAddress,
-                                shippingPhone
-                            );
-                            
-                            if (orderId > 0) {
-                                // Get the created order
-                                OrderDTO savedOrder = orderDAO.getOrdersByID(String.valueOf(orderId));
+        String vnp_SecureHash = vnp_Params.get("vnp_SecureHash");
+        vnp_Params.remove("vnp_SecureHash");
+        
+        // Sắp xếp các tham số và tạo dữ liệu mã hóa
+        List<String> tenTruong = new ArrayList<>(vnp_Params.keySet());
+        Collections.sort(tenTruong);
+        StringBuilder duLieuHash = new StringBuilder();
+        for (String ten : tenTruong) {
+            String giaTri = vnp_Params.get(ten);
+            if ((giaTri != null) && (giaTri.length() > 0)) {
+                duLieuHash.append(ten).append('=').append(giaTri);
+                if (tenTruong.indexOf(ten) < tenTruong.size() - 1) {
+                    duLieuHash.append('&');
+                }
+            }
+        }
+        
+        String giaTriKy = VNPayConfig.hmacSHA512(VNPayConfig.vnp_HashSecret, duLieuHash.toString());
+        
+        if (giaTriKy.equals(vnp_SecureHash)) {
+            if ("00".equals(vnp_Params.get("vnp_ResponseCode"))) {
+                HttpSession session = request.getSession();
+                UserDTO nguoiDung = (UserDTO) session.getAttribute("LOGIN_USER");
+                List<CartItem> gioHang = (List<CartItem>) session.getAttribute("cart");
+                
+                if (nguoiDung != null && gioHang != null) {
+                    try {
+                        OrderDAO orderDAO = new OrderDAO();
+                        double tongTien = Double.parseDouble(vnp_Params.get("vnp_Amount")) / 100;
+                        String diaChiGiaoHang = (String) session.getAttribute("shippingAddress");
+                        String soDienThoaiGiaoHang = (String) session.getAttribute("shippingPhone");
+                        
+                        int maDonHang = orderDAO.createVNPayOrder(
+                            tongTien,
+                            nguoiDung.getUserName(),
+                            diaChiGiaoHang,
+                            soDienThoaiGiaoHang
+                        );
+                        
+                        if (maDonHang > 0) {
+                            OrderDTO donHangDaLuu = orderDAO.getOrdersByID(String.valueOf(maDonHang));
+                            if (donHangDaLuu != null) {
+                                Email dichVuEmail = new Email();
+                                String noiDungEmail = dichVuEmail.messageNewOrder(
+                                    nguoiDung.getUserName(),
+                                    gioHang.size(),
+                                    tongTien,
+                                    gioHang
+                                );
+                                dichVuEmail.sendEmail(
+                                    dichVuEmail.subjectNewOrder(),
+                                    noiDungEmail,
+                                    nguoiDung.getEmail()
+                                );
                                 
-                                if (savedOrder != null) {
-                                    // Gửi email xác nhận
-                                    Email emailService = new Email();
-                                    String emailContent = emailService.messageNewOrder(
-                                        user.getUserName(),
-                                        cartItems.size(),
-                                        totalAmount,
-                                        cartItems
-                                    );
-                                    emailService.sendEmail(
-                                        emailService.subjectNewOrder(),
-                                        emailContent,
-                                        user.getEmail()
-                                    );
-                                    
-                                    // Xóa giỏ hàng
-                                    session.removeAttribute("cart");
-                                    session.removeAttribute("shippingAddress");
-                                    session.removeAttribute("shippingPhone");
-                                }
+                                session.removeAttribute("cart");
+                                session.removeAttribute("shippingAddress");
+                                session.removeAttribute("shippingPhone");
                             }
-                        } catch (Exception e) {
-                            e.printStackTrace();
                         }
+                    } catch (Exception e) {
+                        e.printStackTrace();
                     }
                 }
             }
         }
         
-        // Hiển thị kết quả
-        request.setAttribute("code", request.getParameter("vnp_ResponseCode"));
+        request.setAttribute("code", vnp_Params.get("vnp_ResponseCode"));
         request.getRequestDispatcher("/view/jsp/home/vnpay_return.jsp").forward(request, response);
     }
 }

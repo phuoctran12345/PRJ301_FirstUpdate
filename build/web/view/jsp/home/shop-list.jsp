@@ -31,8 +31,11 @@
                     <c:set var="cat" value="${requestScope.LISTCATEGORIES}"/>
                     <div class="pos_home_section">
                         <div class="row pos_home">
-                            <form id="form-filter" action="FilterServlet" method="get" class="col-lg-3 col-md-12">
+                            <form id="form-filter" action="${requestScope.DATA_FROM == 'SearchServlet' ? 'SearchServlet' : 'FilterServlet'}" method="get" class="col-lg-3 col-md-12">
                                 <input type="hidden" name="valueSort" value="${requestScope.VALUESORT}"/>
+                                <c:if test="${requestScope.DATA_FROM == 'SearchServlet'}">
+                                    <input type="hidden" name="txtSearch" value="${requestScope.txtSearch}">
+                                </c:if>
                                 <div class="sidebar_widget shop_c">
                                     <div class="categorie__titile">
                                         <h4>Phân loại</h4>
@@ -56,14 +59,14 @@
                                     <h2>Color</h2>
                                     <div class="widget_color">
                                         <ul>
-                                            <li><input type="checkbox" name="color" value="Đen" ${requestScope.COLOR == 'Black' ? 'checked' : ''}><label>Đen</label></li>
-                                            <li><input type="checkbox" name="color" value="Xanh lá" ${requestScope.COLOR == 'Green' ? 'checked' : ''}><label>Xanh lá</label></li>
-                                            <li><input type="checkbox" name="color" value="Cam" ${requestScope.COLOR == 'Orange' ? 'checked' : ''}><label>Cam</label></li>
-                                            <li><input type="checkbox" name="color" value="Xanh dương" ${requestScope.COLOR == 'Blue' ? 'checked' : ''}><label>Xanh dương</label></li>
-                                            <li><input type="checkbox" name="color" value="Vàng" ${requestScope.COLOR == 'Yellow' ? 'checked' : ''}><label>Vàng</label></li>
-                                            <li><input type="checkbox" name="color" value="Nâu" ${requestScope.COLOR == 'Brown' ? 'checked' : ''}><label>Nâu</label></li>
-                                            <li><input type="checkbox" name="color" value="Trắng" ${requestScope.COLOR == 'White' ? 'checked' : ''}><label>Trắng</label></li>
-                                            <li><input type="checkbox" name="color" value="Đỏ" ${requestScope.COLOR == 'Red' ? 'checked' : ''}><label>Đỏ</label></li>
+                                            <li><input type="checkbox" name="color" value="Đen" <c:forEach var="c" items="${requestScope.COLORS}"><c:if test="${c == 'Đen'}">checked</c:if></c:forEach>><label>Đen</label></li>
+                                            <li><input type="checkbox" name="color" value="Xanh lá" <c:forEach var="c" items="${requestScope.COLORS}"><c:if test="${c == 'Xanh lá'}">checked</c:if></c:forEach>><label>Xanh lá</label></li>
+                                            <li><input type="checkbox" name="color" value="Cam" <c:forEach var="c" items="${requestScope.COLORS}"><c:if test="${c == 'Cam'}">checked</c:if></c:forEach>><label>Cam</label></li>
+                                            <li><input type="checkbox" name="color" value="Xanh dương" <c:forEach var="c" items="${requestScope.COLORS}"><c:if test="${c == 'Xanh dương'}">checked</c:if></c:forEach>><label>Xanh dương</label></li>
+                                            <li><input type="checkbox" name="color" value="Vàng" <c:forEach var="c" items="${requestScope.COLORS}"><c:if test="${c == 'Vàng'}">checked</c:if></c:forEach>><label>Vàng</label></li>
+                                            <li><input type="checkbox" name="color" value="Nâu" <c:forEach var="c" items="${requestScope.COLORS}"><c:if test="${c == 'Nâu'}">checked</c:if></c:forEach>><label>Nâu</label></li>
+                                            <li><input type="checkbox" name="color" value="Trắng" <c:forEach var="c" items="${requestScope.COLORS}"><c:if test="${c == 'Trắng'}">checked</c:if></c:forEach>><label>Trắng</label></li>
+                                            <li><input type="checkbox" name="color" value="Đỏ" <c:forEach var="c" items="${requestScope.COLORS}"><c:if test="${c == 'Đỏ'}">checked</c:if></c:forEach>><label>Đỏ</label></li>
                                         </ul>
                                     </div>
                                 </div>
@@ -126,13 +129,37 @@
                                     </div>
                                     <div class="select_option" style="display: flex; justify-content: flex-end; align-items: center">
                                         <label>Sort By: </label>
-                                        <form action="ShopServlet" method="get">
+                                        <form action="${requestScope.DATA_FROM == 'FilterServlet' ? 'FilterServlet' : requestScope.DATA_FROM == 'SearchServlet' ? 'SearchServlet' : 'ShopServlet'}" method="get">
                                             <select name="valueSort" onchange="this.form.submit()">
-                                                <option value="0">Nổi bật</option>
-                                                <option value="1">Giá: Thấp đến Cao</option>
-                                                <option value="2">Giá: Cao đến Thấp</option>
-                                                <option value="3">Tên: A-Z</option>
+                                                <option value="0" ${requestScope.VALUESORT == '0' ? 'selected' : ''}>Nổi bật</option>
+                                                <option value="1" ${requestScope.VALUESORT == '1' ? 'selected' : ''}>Giá: Thấp đến Cao</option>
+                                                <option value="2" ${requestScope.VALUESORT == '2' ? 'selected' : ''}>Giá: Cao đến Thấp</option>
+                                                <option value="3" ${requestScope.VALUESORT == '3' ? 'selected' : ''}>Tên: A-Z</option>
                                             </select>
+                                            <c:if test="${requestScope.DATA_FROM == 'FilterServlet'}">
+                                                <c:forEach var="id" items="${paramValues.id_filter}">
+                                                    <input type="hidden" name="id_filter" value="${id}">
+                                                </c:forEach>
+                                                <c:forEach var="color" items="${paramValues.color}">
+                                                    <input type="hidden" name="color" value="${color}">
+                                                </c:forEach>
+                                                <input type="hidden" name="pricefrom" value="${param.pricefrom}">
+                                                <input type="hidden" name="priceto" value="${param.priceto}">
+                                                <input type="hidden" name="discount" value="${param.discount}">
+                                            </c:if>
+                                            <c:if test="${requestScope.DATA_FROM == 'SearchServlet'}">
+                                                <input type="hidden" name="txtSearch" value="${requestScope.txtSearch}">
+                                                <c:forEach var="id" items="${paramValues.id_filter}">
+                                                    <input type="hidden" name="id_filter" value="${id}">
+                                                </c:forEach>
+                                                <c:forEach var="color" items="${paramValues.color}">
+                                                    <input type="hidden" name="color" value="${color}">
+                                                </c:forEach>
+                                                <input type="hidden" name="pricefrom" value="${param.pricefrom}">
+                                                <input type="hidden" name="priceto" value="${param.priceto}">
+                                                <input type="hidden" name="discount" value="${param.discount}">
+                                            </c:if>
+                                            <input type="hidden" name="page" value="${requestScope.CURRENTPAGE}">
                                         </form>
                                     </div>
                                 </div>
@@ -145,7 +172,7 @@
                                                         <div class="single_product">
                                                             <div class="product_thumb">
                                                                 <a href="SingleProductServlet?product_id=${p.id}"><img style="width: 250px; height:250px" src="${p.images[0]}" alt=""></a>
-                                                                    <c:if test="${p.releasedate.getYear() == 124}">
+                                                                <c:if test="${p.releasedate.getYear() == 124}">
                                                                     <div class="img_icone">
                                                                         <img src="assets/home/img/cart/span-new.png" alt="">
                                                                     </div>
@@ -198,28 +225,40 @@
                                         <ul>
                                             <c:if test="${requestScope.DATA_FROM == 'ShopServlet'}">
                                                 <c:set var="page" value="${requestScope.CURRENTPAGE}"/>
-                                                <c:if test="${page != 1}">
+                                                <c:if test="${page > 1}">
                                                     <li><a href="ShopServlet?page=${page - 1}">«</a></li>
-                                                    </c:if>
-                                                    <c:forEach var="i" begin="1" end="${requestScope.NUMBERPAGE}">
+                                                </c:if>
+                                                <c:forEach var="i" begin="1" end="${requestScope.NUMBERPAGE}">
                                                     <li><a style="${page == i ? 'color: #e84c3d' : ''}" href="ShopServlet?page=${i}">${i}</a></li>
-                                                    </c:forEach>
-                                                    <c:if test="${page != requestScope.NUMBERPAGE}">
+                                                </c:forEach>
+                                                <c:if test="${page < requestScope.NUMBERPAGE}">
                                                     <li><a href="ShopServlet?page=${page + 1}">»</a></li>
-                                                    </c:if>
                                                 </c:if>
-                                                <c:if test="${requestScope.DATA_FROM == 'FilterServlet'}">
-                                                    <c:set var="page" value="${requestScope.CURRENTPAGE}"/>
-                                                    <c:if test="${page != 1}">
+                                            </c:if>
+                                            <c:if test="${requestScope.DATA_FROM == 'FilterServlet'}">
+                                                <c:set var="page" value="${requestScope.CURRENTPAGE}"/>
+                                                <c:if test="${page > 1}">
                                                     <li><a href="FilterServlet?page=${page - 1}&${requestScope.QUERYSTRING}">«</a></li>
-                                                    </c:if>
-                                                    <c:forEach var="i" begin="1" end="${requestScope.NUMBERPAGE}">
-                                                    <li><a style="${page == i ? 'color: #e84c3d' : ''}" href="FilterServlet?page=${i}&${requestScope.QUERYSTRING}">${i}</a></li>
-                                                    </c:forEach>
-                                                    <c:if test="${page != requestScope.NUMBERPAGE}">
-                                                    <li><a href="FilterServlet?page=${page + 1}&${requestScope.QUERYSTRING}">»</a></li>
-                                                    </c:if>
                                                 </c:if>
+                                                <c:forEach var="i" begin="1" end="${requestScope.NUMBERPAGE}">
+                                                    <li><a style="${page == i ? 'color: #e84c3d' : ''}" href="FilterServlet?page=${i}&${requestScope.QUERYSTRING}">${i}</a></li>
+                                                </c:forEach>
+                                                <c:if test="${page < requestScope.NUMBERPAGE}">
+                                                    <li><a href="FilterServlet?page=${page + 1}&${requestScope.QUERYSTRING}">»</a></li>
+                                                </c:if>
+                                            </c:if>
+                                            <c:if test="${requestScope.DATA_FROM == 'SearchServlet'}">
+                                                <c:set var="page" value="${requestScope.CURRENTPAGE}"/>
+                                                <c:if test="${page > 1}">
+                                                    <li><a href="SearchServlet?page=${page - 1}&txtSearch=${requestScope.txtSearch}&valueSort=${requestScope.VALUESORT}&${requestScope.QUERYSTRING}">«</a></li>
+                                                </c:if>
+                                                <c:forEach var="i" begin="1" end="${requestScope.NUMBERPAGE}">
+                                                    <li><a style="${page == i ? 'color: #e84c3d' : ''}" href="SearchServlet?page=${i}&txtSearch=${requestScope.txtSearch}&valueSort=${requestScope.VALUESORT}&${requestScope.QUERYSTRING}">${i}</a></li>
+                                                </c:forEach>
+                                                <c:if test="${page < requestScope.NUMBERPAGE}">
+                                                    <li><a href="SearchServlet?page=${page + 1}&txtSearch=${requestScope.txtSearch}&valueSort=${requestScope.VALUESORT}&${requestScope.QUERYSTRING}">»</a></li>
+                                                </c:if>
+                                            </c:if>
                                         </ul>
                                     </div>
                                 </div>
@@ -230,6 +269,5 @@
             </div>
         </div>
         <%@include file="../../common/web/footer.jsp"%>
-
     </body>
 </html>

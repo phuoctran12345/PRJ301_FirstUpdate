@@ -70,6 +70,10 @@ public class OrderDTO {
     public void setStatus(boolean status) {
         this.status = status;
     }
+
+    public void setPaymentId(int i) {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
     
     
     

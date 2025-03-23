@@ -21,10 +21,6 @@ import model.ProductDTO;
 import model.SupplierDTO;
 import model.TypeDTO;
 
-/**
- *
- * @author HuuThanh
- */
 public class ProductDAO extends DBContext {
 
     //private static final String GET_DATA = "SELECT * FROM Products WHERE status = 1";
@@ -567,18 +563,21 @@ public class ProductDAO extends DBContext {
 
     public List<ProductDTO> sortProduct(List<ProductDTO> list, String value) throws SQLException {
         List<ProductDTO> result = new ArrayList<>(list);
-        if (value.equals("1")) {
-            Collections.sort(result, (ProductDTO s1, ProductDTO s2) -> {
-                return Double.compare(s1.getSalePrice(), s2.getSalePrice());
-            });
-        } else if (value.equals("2")) {
-            Collections.sort(result, (ProductDTO s1, ProductDTO s2) -> {
-                return -(Double.compare(s1.getSalePrice(), s2.getSalePrice()));
-            });
-        } else if (value.equals("3")) {
-            Collections.sort(result, (ProductDTO s1, ProductDTO s2) -> {
-                return s1.getName().compareTo(s2.getName());
-            });
+        switch (value) {
+            case "0": // Nổi bật (sắp xếp theo ngày phát hành mới nhất)
+                Collections.sort(result, (p1, p2) -> p2.getReleasedate().compareTo(p1.getReleasedate()));
+                break;
+            case "1": // Giá: Thấp đến Cao
+                Collections.sort(result, (p1, p2) -> Double.compare(p1.getSalePrice(), p2.getSalePrice()));
+                break;
+            case "2": // Giá: Cao đến Thấp
+                Collections.sort(result, (p1, p2) -> Double.compare(p2.getSalePrice(), p1.getSalePrice()));
+                break;
+            case "3": // Tên: A-Z
+                Collections.sort(result, (p1, p2) -> p1.getName().compareToIgnoreCase(p2.getName()));
+                break;
+            default:
+                break;
         }
         return result;
     }
@@ -923,6 +922,7 @@ public class ProductDAO extends DBContext {
         return products;
     }
     
+    
     // MĐH
    public List<Object[]> getTopProductsByOrderCount(int limit) throws SQLException {
       List<Object[]> topProducts = new ArrayList();
@@ -961,7 +961,6 @@ public class ProductDAO extends DBContext {
 
       return topProducts;
    }
-    
 
 //    public static void main(String[] args) throws SQLException {
 //        ProductDAO dao = new ProductDAO();
@@ -979,5 +978,8 @@ public class ProductDAO extends DBContext {
 //        System.out.println(value);
 //    }
 }
+
+
+
 
 

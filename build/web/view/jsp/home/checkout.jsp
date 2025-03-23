@@ -171,40 +171,25 @@
                                                     </table>     
                                                 </div>
                                                 <div class="payment_method">
-                                                    <h3>PHƯƠNG THỨC THANH TOÁN</h3>
-                                                    <c:forEach items="${requestScope.PAYMENTS}" var="p">
-                                                        <div class="panel-default">
-                                                            <input id="payment_${p.paymentID}" 
-                                                                   name="check_method" 
-                                                                   type="radio" 
-                                                                   value="${p.paymentID}"
-                                                                   onclick="handlePaymentSelection('${p.paymentMethod}')" 
-                                                                   checked>
-                                                            <label for="payment_${p.paymentID}">${p.paymentMethod}</label>
-                                                        </div> 
-                                                    </c:forEach>
-                                                    
-                                                    <!-- Phần hiển thị QR -->
-                                                    <div id="qr-payment-section" class="qr-payment-section">
-                                                        <h4>Quét mã QR để thanh toán</h4>
-                                                        <div class="timer">
-                                                            Thời gian còn lại: <span id="countdown">300</span> giây
-                                                        </div>
-                                                        <div class="qr-code">
-                                                            <img id="qr-code-image" src="${requestScope.qrPath}" alt="QR Payment Code" style="max-width: 250px;">
-                                                        </div>
-                                                        <div class="payment-instructions">
-                                                            <h5>Hướng dẫn thanh toán:</h5>
-                                                            <ol>
-                                                                <li>Mở ứng dụng MB Bank trên điện thoại</li>
-                                                                <li>Chọn chức năng "Quét QR"</li>
-                                                                <li>Quét mã QR hiển thị phía trên</li>
-                                                                <li>Kiểm tra thông tin và xác nhận thanh toán</li>
-                                                                <li>Đợi thông báo thanh toán thành công</li>
-                                                            </ol>
-                                                        </div>
+                                                        <h3>PHƯƠNG THỨC THANH TOÁN</h3>
+                                                        <c:forEach items="${requestScope.PAYMENTS}" var="p">
+                                                            <div class="panel-default">
+                                                                <input id="payment_${p.paymentID}" 
+                                                                       name="check_method" 
+                                                                       type="radio" 
+                                                                       value="${p.paymentID}"
+                                                                       onclick="chonPhuongThucThanhToan('${p.paymentMethod}')"
+                                                                       ${p.paymentMethod == 'Credit Card' ? 'checked' : ''}>
+                                                                <label for="payment_${p.paymentID}">${p.paymentMethod}</label>
+                                                            </div> 
+                                                        </c:forEach>
                                                     </div>
-                                                </div> 
+
+                                                    <div class="order_button">
+                                                        <c:if test="${sessionScope.account != null && sessionScope.account.roleID == 2}">
+                                                            <button type="button" onclick="xuLyThanhToan(${totalPrice})">Thanh toán</button>
+                                                        </c:if>
+                                                    </div>
                                                 
                                                 <c:if test="${sessionScope.CART != null && sessionScope.CART.size() > 0}">
                                                     <c:if test="${sessionScope.account != null && sessionScope.account.roleID == 2}">
@@ -293,6 +278,23 @@
                         }
                     }, 1000);
                 }
+                function xuLyThanhToan(tongTien) {
+                    const phuongThucDaChon = document.querySelector('input[name="check_method"]:checked');
+                    const phuongThuc = phuongThucDaChon ? 
+                        document.querySelector(`label[for="${phuongThucDaChon.id}"]`).textContent : '';
+
+                    if (phuongThuc === 'Credit Card') {
+                        // Chuyển hướng đến Servlet xử lý VNPay
+                        window.location.href = `VNPayServlet?amount=${tongTien}`;
+                    } else {
+                        // Xử lý các phương thức thanh toán khác
+                        document.querySelector('form[action="CheckoutServlet"]').submit();
+                    }
+                }
+
+                 function chonPhuongThucThanhToan(phuongThuc) {
+                        // Giữ lại logic xử lý mã QR nếu cần
+                 }
             </script>
     </body>
 </html>
