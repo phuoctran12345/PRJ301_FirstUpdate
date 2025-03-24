@@ -2,6 +2,7 @@
 package model;
 
 import java.sql.Date;
+import java.util.List;
 
 public class OrderDTO {
     private int orderID;
@@ -72,6 +73,10 @@ public class OrderDTO {
     }
 
     public void setPaymentId(int i) {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+
+    public void setCartItems(List<CartItem> cartItems) {
         throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
     

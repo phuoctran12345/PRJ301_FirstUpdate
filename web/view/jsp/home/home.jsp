@@ -119,9 +119,9 @@
                                     <div class="single_slider" style="background-image: url(view/assets/home/img/slider/slide_1.png)">
                                         <div class="slider_content">
                                             <div class="slider_content_inner">  
-                                                <h1>Men's Fashion</h1>
-                                                <p>Thời trang, phong cách trẻ trung.</p>
-                                                <a href="ShopServlet">shop now</a>
+<!--                                                <h1>Men's Fashion</h1>
+                                                <p>Thời trang, phong cách trẻ trung.</p>-->
+                                                <a href="http://localhost:8080/ShopUpdate/ShopServlet" class="button-shop fixed-shop-btn">Shop now</a>
                                             </div>     
                                         </div>    
                                     </div>

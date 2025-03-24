@@ -13,6 +13,7 @@ import jakarta.mail.Transport;
 import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
 import java.util.List;
+import static org.apache.tomcat.jni.Buffer.address;
 
 public class Email {
     // Các hằng số cho cấu hình SMTP
@@ -101,18 +102,18 @@ public class Email {
         }
     }
 
-    // Tạo nội dung email với chi tiết sản phẩm
-    return createEmailTemplate("Đặt hàng thành công",
-            "<p>Chào " + name + ",</p>" +
-            "<p>Đơn hàng của bạn đã được xác nhận thành công.</p>" +
-            "<p>Chi tiết đơn hàng:</p>" +
-            "<ul>" +
-            itemsDetail.toString() +  // Thêm chi tiết sản phẩm vào đây
-            "</ul>" +
-            "<p>Tổng số lượng sản phẩm: <strong>" + quantity + "</strong></p>" +
-            "<p>Tổng tiền: <strong>" + String.format("%,.0f", total) + " VNĐ</strong></p>" +
-            "<p>Thời gian giao hàng dự kiến: 3-7 ngày</p>");
-}
+        // Tạo nội dung email với chi tiết sản phẩm
+return createEmailTemplate("Đặt hàng thành công",
+        "<p>Chào " + name + ",</p>" +
+        "<p>Đơn hàng của bạn đã được xác nhận thành công.</p>" +
+        "<p>Chi tiết đơn hàng:</p>" +
+        "<ul>" +
+        itemsDetail.toString() +  // Thêm chi tiết sản phẩm vào đây
+        "</ul>" +
+        "<p>Tổng số lượng sản phẩm: <strong>" + quantity + "</strong></p>" +
+        "<p>Tổng tiền: <strong>" + String.format("%,.0f", total) + " VNĐ</strong></p>" +
+        "<p>Thời gian giao hàng dự kiến: 3-7 ngày</p>");
+    }
 
     public String messageFogot(String name, int code) {
         return createEmailTemplate("Mã xác nhận khôi phục mật khẩu",

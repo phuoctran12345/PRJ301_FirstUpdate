@@ -14,7 +14,7 @@
         <!-- all css here -->
         <%@include file="../../common/web/add_css.jsp"%>
         
-        <!-- CSS cho phần thanh toán QR -->
+        <!-- CSS cho phần thanh toán QR và nút mới -->
         <style>
             .qr-payment-section {
                 display: none;
@@ -39,11 +39,21 @@
                 border-radius: 5px;
                 border: 1px solid #eee;
             }
+            .btn-update-info {
+                background: #e67e22;
+                color: white;
+                padding: 10px 20px;
+                border: none;
+                border-radius: 5px;
+                cursor: pointer;
+                margin-top: 20px;
+            }
+            .btn-update-info:hover {
+                background: #d35400;
+            }
         </style>
     </head>
     <body>
-        <!-- Add your site or application content here -->
-
         <!--pos page start-->
         <div class="pos_page">
             <div class="container">
@@ -97,33 +107,45 @@
                                                 ${requestScope.MESSAGE}
                                             </h3>
                                         </c:if>
-                                        <form style="padding: 20px; border: 1px black solid;" action="#">
+                                        <form style="padding: 20px; border: 1px black solid;" action="CheckoutServlet" method="POST">
                                             <h3>Thông tin thanh toán</h3>
                                             <div class="row">
                                                 <div class="col-lg-6 mb-30">
                                                     <label>Họ <span>*</span></label>
-                                                    <input type="text" value="${sessionScope.account != null ? sessionScope.account.firstName: ''}" readonly>    
+                                                    <input type="text" name="firstName" value="${sessionScope.account != null ? sessionScope.account.firstName: ''}" readonly>    
                                                 </div>
                                                 <div class="col-lg-6 mb-30">
                                                     <label>Tên <span>*</span></label>
-                                                    <input type="text" value="${sessionScope.account != null ? sessionScope.account.lastName: ''}" readonly> 
+                                                    <input type="text" name="lastName" value="${sessionScope.account != null ? sessionScope.account.lastName: ''}" readonly> 
                                                 </div>
                                                 <div class="col-12 mb-30">
                                                     <label>Email</label>
-                                                    <input type="email" value="${sessionScope.account != null ? sessionScope.account.email: ''}" readonly>     
+                                                    <input type="email" name="email" value="${sessionScope.account != null ? sessionScope.account.email: ''}" readonly>     
                                                 </div>
                                                 <div class="col-12 mb-30">
                                                     <label>Địa chỉ <span>*</span></label>
-                                                    <input placeholder="Số nhà và tên đường" type="text" value="${sessionScope.account != null ? sessionScope.account.address: ''}" readonly>     
+                                                    <input placeholder="Số nhà và tên đường" 
+                                                           type="text" 
+                                                           name="address" 
+                                                           value="${sessionScope.account != null ? sessionScope.account.address: ''}" 
+                                                           required>     
                                                 </div>
                                                 <div class="col-lg-6 mb-30">
                                                     <label>Số điện thoại<span>*</span></label>
-                                                    <input type="number" value="${sessionScope.account != null ? sessionScope.account.phone: ''}" readonly> 
+                                                    <input type="tel" 
+                                                           name="phone" 
+                                                           value="${sessionScope.account != null ? sessionScope.account.phone: ''}" 
+                                                           pattern="[0-9]{10}" 
+                                                           required 
+                                                           title="Vui lòng nhập số điện thoại 10 chữ số"> 
                                                 </div> 
                                                 <div class="col-lg-6 mb-30">
                                                     <label>Email<span>*</span></label>
-                                                    <input type="email" value="${sessionScope.account != null ? sessionScope.account.email: ''}" readonly> 
-                                                </div> 
+                                                    <input type="email" 
+                                                           name="emailConfirm" 
+                                                           value="${sessionScope.account != null ? sessionScope.account.email: ''}" 
+                                                           readonly> 
+                                                </div>
                                             </div>
                                         </form>    
                                     </div>
@@ -171,25 +193,40 @@
                                                     </table>     
                                                 </div>
                                                 <div class="payment_method">
-                                                        <h3>PHƯƠNG THỨC THANH TOÁN</h3>
-                                                        <c:forEach items="${requestScope.PAYMENTS}" var="p">
-                                                            <div class="panel-default">
-                                                                <input id="payment_${p.paymentID}" 
-                                                                       name="check_method" 
-                                                                       type="radio" 
-                                                                       value="${p.paymentID}"
-                                                                       onclick="chonPhuongThucThanhToan('${p.paymentMethod}')"
-                                                                       ${p.paymentMethod == 'Credit Card' ? 'checked' : ''}>
-                                                                <label for="payment_${p.paymentID}">${p.paymentMethod}</label>
-                                                            </div> 
-                                                        </c:forEach>
+                                                    <h3>PHƯƠNG THỨC THANH TOÁN</h3>
+                                                    <c:forEach items="${requestScope.PAYMENTS}" var="p">
+                                                        <div class="panel-default">
+                                                            <input id="payment_${p.paymentID}" 
+                                                                   name="check_method" 
+                                                                   type="radio" 
+                                                                   value="${p.paymentID}"
+                                                                   onclick="handlePaymentSelection('${p.paymentMethod}')" 
+                                                                   checked>
+                                                            <label for="payment_${p.paymentID}">${p.paymentMethod}</label>
+                                                        </div> 
+                                                    </c:forEach>
+                                                    
+                                                    <!-- Phần hiển thị QR -->
+                                                    <div id="qr-payment-section" class="qr-payment-section">
+                                                        <h4>Quét mã QR để thanh toán</h4>
+                                                        <div class="timer">
+                                                            Thời gian còn lại: <span id="countdown">300</span> giây
+                                                        </div>
+                                                        <div class="qr-code">
+                                                            <img id="qr-code-image" src="${requestScope.qrPath}" alt="QR Payment Code" style="max-width: 250px;">
+                                                        </div>
+                                                        <div class="payment-instructions">
+                                                            <h5>Hướng dẫn thanh toán:</h5>
+                                                            <ol>
+                                                                <li>Mở ứng dụng MB Bank trên điện thoại</li>
+                                                                <li>Chọn chức năng "Quét QR"</li>
+                                                                <li>Quét mã QR hiển thị phía trên</li>
+                                                                <li>Kiểm tra thông tin và xác nhận thanh toán</li>
+                                                                <li>Đợi thông báo thanh toán thành công</li>
+                                                            </ol>
+                                                        </div>
                                                     </div>
-
-                                                    <div class="order_button">
-                                                        <c:if test="${sessionScope.account != null && sessionScope.account.roleID == 2}">
-                                                            <button type="button" onclick="xuLyThanhToan(${totalPrice})">Thanh toán</button>
-                                                        </c:if>
-                                                    </div>
+                                                </div> 
                                                 
                                                 <c:if test="${sessionScope.CART != null && sessionScope.CART.size() > 0}">
                                                     <c:if test="${sessionScope.account != null && sessionScope.account.roleID == 2}">
@@ -278,23 +315,6 @@
                         }
                     }, 1000);
                 }
-                function xuLyThanhToan(tongTien) {
-                    const phuongThucDaChon = document.querySelector('input[name="check_method"]:checked');
-                    const phuongThuc = phuongThucDaChon ? 
-                        document.querySelector(`label[for="${phuongThucDaChon.id}"]`).textContent : '';
-
-                    if (phuongThuc === 'Credit Card') {
-                        // Chuyển hướng đến Servlet xử lý VNPay
-                        window.location.href = `VNPayServlet?amount=${tongTien}`;
-                    } else {
-                        // Xử lý các phương thức thanh toán khác
-                        document.querySelector('form[action="CheckoutServlet"]').submit();
-                    }
-                }
-
-                 function chonPhuongThucThanhToan(phuongThuc) {
-                        // Giữ lại logic xử lý mã QR nếu cần
-                 }
             </script>
     </body>
 </html>

@@ -961,6 +961,9 @@ public class ProductDAO extends DBContext {
 
       return topProducts;
    }
+   
+   
+   
 
 //    public static void main(String[] args) throws SQLException {
 //        ProductDAO dao = new ProductDAO();
@@ -977,6 +980,10 @@ public class ProductDAO extends DBContext {
 //        int value = dao.getStock(3);
 //        System.out.println(value);
 //    }
+   
+   
+   //THP 
+   
 }
 
 
