@@ -1,5 +1,6 @@
 package model;
 
+// lớp model lưu thông tin người dùng google 
 public class UserGoogleDTO {
 
 	private String id;

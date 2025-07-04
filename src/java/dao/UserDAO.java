@@ -168,39 +168,39 @@ public class UserDAO extends DBContext {
         return result;
     }
 
-    public void updateUser(String firstName, String lastName, String email, String address, String phone, String userName, String avatar, int roleId) throws SQLException {
-        UserDTO user = null;
-        Connection conn = null;
-        PreparedStatement ptm = null;
-        ResultSet rs = null;
-        try {
-            conn = getConnection();
-            if (conn != null) {
-                ptm = conn.prepareStatement(UPDATE_USER);
-                ptm.setString(1, firstName);
-                ptm.setString(2, lastName);
-                ptm.setString(3, email);
-                ptm.setString(4, address);
-                ptm.setString(5, phone);
-                ptm.setString(6, avatar);
-                ptm.setInt(7, roleId);
-                ptm.setString(8, userName);
-                ptm.executeUpdate();
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            if (rs != null) {
-                rs.close();
-            }
-            if (ptm != null) {
-                ptm.close();
-            }
-            if (conn != null) {
-                conn.close();
-            }
-        }
-    }
+//    public void updateUser(String firstName, String lastName, String email, String address, String phone, String userName, String avatar, int roleId) throws SQLException {
+//        UserDTO user = null;
+//        Connection conn = null;
+//        PreparedStatement ptm = null;
+//        ResultSet rs = null;
+//        try {
+//            conn = getConnection();
+//            if (conn != null) {
+//                ptm = conn.prepareStatement(UPDATE_USER);
+//                ptm.setString(1, firstName);
+//                ptm.setString(2, lastName);
+//                ptm.setString(3, email);
+//                ptm.setString(4, address);
+//                ptm.setString(5, phone);
+//                ptm.setString(6, avatar);
+//                ptm.setInt(7, roleId);
+//                ptm.setString(8, userName);
+//                ptm.executeUpdate();
+//            }
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        } finally {
+//            if (rs != null) {
+//                rs.close();
+//            }
+//            if (ptm != null) {
+//                ptm.close();
+//            }
+//            if (conn != null) {
+//                conn.close();
+//            }
+//        }
+//    }
 
     public boolean updatePasswordUser(UserDTO user, String pass) throws SQLException {
         Connection conn = null;

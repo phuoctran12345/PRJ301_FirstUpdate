@@ -14,6 +14,19 @@ import jakarta.servlet.http.HttpSession;
 /**
  * Filter kiểm tra người dùng đã đăng nhập chưa
  */
+
+ /*
+  * - Kiểm tra trạng thái đăng nhập
+- Chuyển hướng về trang đăng nhập nếu chưa xác thực
+- Cho phép truy cập tài nguyên nếu đã xác thực
+Quy trình này đảm bảo tính bảo mật theo tiêu chuẩn OAuth 2.0:
+
+- Sử dụng HTTPS cho xác thực Google
+- Quản lý session đúng cách
+- Xử lý cookie an toàn với cờ HttpOnly và Secure
+- Kiểm tra tồn tại người dùng trước khi cấp quyền
+- Xử lý đăng ký cho người dùng Google mới hợp lý
+  */
 public class LoginFilter implements Filter {
 
     private FilterConfig filterConfig = null;

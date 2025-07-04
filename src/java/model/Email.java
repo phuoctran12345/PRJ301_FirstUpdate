@@ -191,7 +191,7 @@ return createEmailTemplate("Đặt hàng thành công",
         Email email = new Email();
         try {
             // Test gửi email
-            String testEmail = "thebao122004@gmail.com";
+            String testEmail = "choheo.soss@gmail.com";
             if (email.isValidEmail(testEmail)) {
                 email.sendEmail(
                     email.subjectForgotPass(),

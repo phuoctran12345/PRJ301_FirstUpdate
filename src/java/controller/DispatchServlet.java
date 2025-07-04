@@ -1,188 +1,15 @@
-//package controller;
-//
-//import service.IWishlistService;
-//import service.WishlistService; // Thay thế WishlistUtil bằng WishlistService
-//import service.CartService; // Replace CartUtil with CartService
-//import dao.CategoryDAO;
-//import dao.ProductDAO;
-//import dao.SupplierDAO;
-//import dao.TypeDAO;
-//import java.io.IOException;
-//import java.util.List;
-//import jakarta.servlet.ServletException;
-//import jakarta.servlet.annotation.WebServlet;
-//import jakarta.servlet.http.Cookie;
-//import jakarta.servlet.http.HttpServlet;
-//import jakarta.servlet.http.HttpServletRequest;
-//import jakarta.servlet.http.HttpServletResponse;
-//import jakarta.servlet.http.HttpSession;
-//import model.CartItem;
-//import model.CategoryDTO;
-//import model.ProductDTO;
-//import model.SupplierDTO;
-//import model.TypeDTO;
-//
-//@WebServlet(name = "DispatchServlet", urlPatterns = {"/DispatchServlet"})
-//public class DispatchServlet extends HttpServlet {
-//
-//    // Page and servlet destinations
-//    private final String HOME_PAGE = "view/jsp/home/home.jsp";
-//    private final String LOGIN_SERVLET = "LoginServlet";
-//    private final String WISHLIST_SERVLET = "WishlistServlet";
-//    private final String REGISTER_SERVLET = "RegisterServlet";
-//    private final String SEARCH_SERVLET = "SearchServlet";
-//
-//    // Button actions
-//    private final String LOGIN_ACTION = "Login";
-//    private final String SEARCH_ACTION = "Search";
-//    private final String LOGOUT_ACTION = "Logout";
-//    private final String REGISTER_ACTION = "Register";
-//    private final String ADD_TO_WISHLIST_ACTION = "AddToWishList";
-//
-//    // Main request processing method
-//    protected void processRequest(HttpServletRequest request, HttpServletResponse response)
-//            throws ServletException, IOException {
-//        // Set response type to HTML with UTF-8 encoding
-//        response.setContentType("text/html; charset=UTF-8");
-//        response.setCharacterEncoding("UTF-8");
-//        
-//        String destination = HOME_PAGE; // Default destination
-//        
-//        try {
-//            String buttonClicked = request.getParameter("btnAction");
-//            HttpSession session = request.getSession();
-//
-//            // If no button clicked, show home page
-//            if (buttonClicked == null) {
-//                loadHomePageData(request, response);
-//                request.setAttribute("CURRENTSERVLET", "Home");
-//            }
-//            // Handle logout
-//            else if (buttonClicked.equals(LOGOUT_ACTION)) {
-//                loadHomePageData(request, response);
-//                session.removeAttribute("account"); // Clear user session
-//                request.setAttribute("CURRENTSERVLET", "Home");
-//            }
-//            // Direct to login servlet
-//            else if (buttonClicked.equals(LOGIN_ACTION)) {
-//                destination = LOGIN_SERVLET;
-//            }
-//            // Direct to register servlet
-//            else if (buttonClicked.equals(REGISTER_ACTION)) {
-//                destination = REGISTER_SERVLET;
-//            }
-//            // Direct to search servlet
-//            else if (buttonClicked.equals(SEARCH_ACTION)) {
-//                destination = SEARCH_SERVLET;
-//            }
-//            // Direct to wishlist servlet
-//            else if (buttonClicked.equals(ADD_TO_WISHLIST_ACTION)) {
-//                destination = WISHLIST_SERVLET;
-//            }
-//        } catch (Exception error) {
-//            log("Error in DispatchServlet: " + error.getMessage());
-//        } finally {
-//            // Forward to the determined destination
-//            request.getRequestDispatcher(destination).forward(request, response);
-//        }
-//    }
-//
-//    // Load data for home page
-//    protected void loadHomePageData(HttpServletRequest request, HttpServletResponse response) {
-//        try {
-//            // Create DAO objects
-//            ProductDAO productDAO = new ProductDAO();
-//            CategoryDAO categoryDAO = new CategoryDAO();
-//            SupplierDAO supplierDAO = new SupplierDAO();
-//            TypeDAO typeDAO = new TypeDAO();
-//
-//            // Get all necessary data
-//            List<ProductDTO> allProducts = productDAO.getData();
-//            List<CategoryDTO> categories = categoryDAO.getData();
-//            List<SupplierDTO> suppliers = supplierDAO.getData();
-//            List<ProductDTO> newProducts = productDAO.getProductNew();
-//            List<ProductDTO> bestSellers = productDAO.getProductsBestSeller();
-//            List<TypeDTO> types = typeDAO.getAllType();
-//
-//            // Set data as request attributes
-//            request.setAttribute("LIST_PRODUCTS", allProducts);
-//            request.setAttribute("LIST_TYPES", types);
-//            request.setAttribute("LIST_CATEGORIESS", categories);
-//            request.setAttribute("LIST_SUPPLIERS", suppliers);
-//            request.setAttribute("LIST_PRODUCTS_NEW", newProducts);
-//            request.setAttribute("LIST_PRODUCTS_SELLER", bestSellers);
-//        } catch (Exception error) {
-//            log("Error loading home page data: " + error.getMessage());
-//        }
-//    }
-//
-//    // Handle GET requests
-//    @Override
-//    protected void doGet(HttpServletRequest request, HttpServletResponse response)
-//            throws ServletException, IOException {
-//        CartService cartService = new CartService(); // Replace CartUtil with CartService
-//        IWishlistService wishlistService = new WishlistService(); // Thay WishlistUtil bằng IWishlistService
-//
-//        try {
-//            HttpSession session = request.getSession();
-//            List<CartItem> cartItems = null;
-//            List<ProductDTO> wishlistItems = null;
-//
-//            // Load cart from session or cookie
-//            if (session.getAttribute("CART") == null) {
-//                Cookie cartCookie = cartService.getCookieByName(request, "Cart"); // Use cartService
-//                if (cartCookie != null) {
-//                    cartItems = cartService.getCartFromCookie(cartCookie); // Use cartService
-//                }
-//            } else {
-//                cartItems = (List<CartItem>) session.getAttribute("CART");
-//            }
-//
-//            // Load wishlist from session or cookie
-//            if (session.getAttribute("WISHLIST") == null) {
-//                Cookie wishlistCookie = wishlistService.getCookieByName(request, "Wishlist"); // Sử dụng wishlistService
-//                if (wishlistCookie != null) {
-//                    wishlistItems = wishlistService.getWishlistFromCookie(wishlistCookie); // Sử dụng wishlistService
-//                }
-//            } else {
-//                wishlistItems = (List<ProductDTO>) session.getAttribute("WISHLIST");
-//            }
-//
-//            // Update session with cart and wishlist
-//            session.setAttribute("CART", cartItems);
-//            session.setAttribute("WISHLIST", wishlistItems);
-//
-//        } catch (Exception error) {
-//            log("Error in doGet: " + error.getMessage());
-//        }
-//        
-//        processRequest(request, response);
-//    }
-//
-//    // Handle POST requests
-//    @Override
-//    protected void doPost(HttpServletRequest request, HttpServletResponse response)
-//            throws ServletException, IOException {
-//        processRequest(request, response);
-//    }
-//
-//    // Servlet description
-//    @Override
-//    public String getServletInfo() {
-//        return "Main dispatch controller for clothing store";
-//    }
-//}
-
-
 package controller;
 
+// Import các service cần thiết
 import service.IWishlistService;
-import service.WishlistService; // Thay thế WishlistUtil bằng WishlistService
-import service.CartService; // Replace CartUtil with CartService
+import service.WishlistService;
+import service.CartService;
+// Import các DAO để tương tác với database
 import dao.CategoryDAO;
 import dao.ProductDAO;
 import dao.SupplierDAO;
 import dao.TypeDAO;
+// Import các thư viện Java và Servlet
 import java.io.IOException;
 import java.util.List;
 import jakarta.servlet.ServletException;
@@ -192,6 +19,7 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+// Import các model
 import model.CartItem;
 import model.CategoryDTO;
 import model.ProductDTO;
@@ -199,59 +27,67 @@ import model.SupplierDTO;
 import model.TypeDTO;
 import model.UserDTO;
 
+/**
+ * DispatchServlet - Servlet chính điều khiển luồng xử lý của ứng dụng
+ * Xử lý các request từ người dùng và điều hướng đến các trang/servlet tương ứng
+ */
 @WebServlet(name = "DispatchServlet", urlPatterns = {"/DispatchServlet"})
 public class DispatchServlet extends HttpServlet {
 
-    // Page and servlet destinations
+    // Định nghĩa các đường dẫn trang và servlet
     private final String HOME_PAGE = "view/jsp/home/home.jsp";
     private final String LOGIN_SERVLET = "LoginServlet";
     private final String WISHLIST_SERVLET = "WishlistServlet";
     private final String REGISTER_SERVLET = "RegisterServlet";
     private final String SEARCH_SERVLET = "SearchServlet";
 
-    // Button actions
+    // Định nghĩa các action từ button
     private final String LOGIN_ACTION = "Login";
     private final String SEARCH_ACTION = "Search";
     private final String LOGOUT_ACTION = "Logout";
     private final String REGISTER_ACTION = "Register";
     private final String ADD_TO_WISHLIST_ACTION = "AddToWishList";
 
-    // Main request processing method
+    /**
+     * Phương thức xử lý request chính
+     * Xác định action và điều hướng đến trang/servlet tương ứng
+     */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        // Set response type to HTML with UTF-8 encoding
+        // Thiết lập encoding UTF-8 cho response
         response.setContentType("text/html; charset=UTF-8");
         response.setCharacterEncoding("UTF-8");
 
-        String destination = HOME_PAGE; // Default destination
+        String destination = HOME_PAGE; // Trang mặc định là trang chủ
 
         try {
             String buttonClicked = request.getParameter("btnAction");
             HttpSession session = request.getSession();
 
-            // If no button clicked, show home page
+            // Xử lý các action khác nhau
             if (buttonClicked == null) {
+                // Không có action -> hiển thị trang chủ
                 loadHomePageData(request, response);
                 request.setAttribute("CURRENTSERVLET", "Home");
-            } // Handle logout
-            else if (buttonClicked.equals(LOGOUT_ACTION)) {
+            } else if (buttonClicked.equals(LOGOUT_ACTION)) {
+                // Xử lý đăng xuất
                 loadHomePageData(request, response);
-                session.removeAttribute("account"); // Clear user session
+                session.removeAttribute("account");
                 request.setAttribute("CURRENTSERVLET", "Home");
-            } // Direct to login servlet
-            else if (buttonClicked.equals(LOGIN_ACTION)) {
+            } else if (buttonClicked.equals(LOGIN_ACTION)) {
+                // Chuyển đến trang đăng nhập
                 destination = LOGIN_SERVLET;
-            } // Direct to register servlet
-            else if (buttonClicked.equals(REGISTER_ACTION)) {
+            } else if (buttonClicked.equals(REGISTER_ACTION)) {
+                // Chuyển đến trang đăng ký
                 destination = REGISTER_SERVLET;
-            } // Direct to search servlet
-            else if (buttonClicked.equals(SEARCH_ACTION)) {
+            } else if (buttonClicked.equals(SEARCH_ACTION)) {
+                // Chuyển đến trang tìm kiếm
                 destination = SEARCH_SERVLET;
-            } // Direct to wishlist servlet
-            else if (buttonClicked.equals(ADD_TO_WISHLIST_ACTION)) {
+            } else if (buttonClicked.equals(ADD_TO_WISHLIST_ACTION)) {
+                // Chuyển đến trang wishlist
                 destination = WISHLIST_SERVLET;
-            } // Trong processRequest method, thêm case mới
-            else if (buttonClicked.equals("Chat")) {
+            } else if (buttonClicked.equals("Chat")) {
+                // Xử lý chat dựa vào role của user
                 if (session.getAttribute("account") != null) {
                     UserDTO user = (UserDTO) session.getAttribute("account");
                     destination = user.getRoleID() == 1 ? "chat_admin.jsp" : "chat_user.jsp";
@@ -262,21 +98,24 @@ public class DispatchServlet extends HttpServlet {
         } catch (Exception error) {
             log("Error in DispatchServlet: " + error.getMessage());
         } finally {
-            // Forward to the determined destination
+            // Chuyển hướng đến trang đích
             request.getRequestDispatcher(destination).forward(request, response);
         }
     }
 
-    // Load data for home page
+    /**
+     * Phương thức tải dữ liệu cho trang chủ
+     * Lấy danh sách sản phẩm, danh mục, nhà cung cấp và loại sản phẩm
+     */
     protected void loadHomePageData(HttpServletRequest request, HttpServletResponse response) {
         try {
-            // Create DAO objects
+            // Khởi tạo các DAO
             ProductDAO productDAO = new ProductDAO();
             CategoryDAO categoryDAO = new CategoryDAO();
             SupplierDAO supplierDAO = new SupplierDAO();
             TypeDAO typeDAO = new TypeDAO();
 
-            // Get all necessary data
+            // Lấy dữ liệu từ database
             List<ProductDTO> allProducts = productDAO.getData();
             List<CategoryDTO> categories = categoryDAO.getData();
             List<SupplierDTO> suppliers = supplierDAO.getData();
@@ -284,7 +123,7 @@ public class DispatchServlet extends HttpServlet {
             List<ProductDTO> bestSellers = productDAO.getProductsBestSeller();
             List<TypeDTO> types = typeDAO.getAllType();
 
-            // Set data as request attributes
+            // Set dữ liệu vào request để hiển thị
             request.setAttribute("LIST_PRODUCTS", allProducts);
             request.setAttribute("LIST_TYPES", types);
             request.setAttribute("LIST_CATEGORIESS", categories);
@@ -296,39 +135,42 @@ public class DispatchServlet extends HttpServlet {
         }
     }
 
-    // Handle GET requests
+    /**
+     * Xử lý GET request
+     * Kiểm tra và tải giỏ hàng và wishlist từ session hoặc cookie
+     */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        CartService cartService = new CartService(); // Replace CartUtil with CartService
-        IWishlistService wishlistService = new WishlistService(); // Thay WishlistUtil bằng IWishlistService
+        CartService cartService = new CartService();
+        IWishlistService wishlistService = new WishlistService();
 
         try {
             HttpSession session = request.getSession();
             List<CartItem> cartItems = null;
             List<ProductDTO> wishlistItems = null;
 
-            // Load cart from session or cookie
+            // Kiểm tra và tải giỏ hàng từ session hoặc cookie
             if (session.getAttribute("CART") == null) {
-                Cookie cartCookie = cartService.getCookieByName(request, "Cart"); // Use cartService
+                Cookie cartCookie = cartService.getCookieByName(request, "Cart");
                 if (cartCookie != null) {
-                    cartItems = cartService.getCartFromCookie(cartCookie); // Use cartService
+                    cartItems = cartService.getCartFromCookie(cartCookie);
                 }
             } else {
                 cartItems = (List<CartItem>) session.getAttribute("CART");
             }
 
-            // Load wishlist from session or cookie
+            // Kiểm tra và tải wishlist từ session hoặc cookie
             if (session.getAttribute("WISHLIST") == null) {
-                Cookie wishlistCookie = wishlistService.getCookieByName(request, "Wishlist"); // Sử dụng wishlistService
+                Cookie wishlistCookie = wishlistService.getCookieByName(request, "Wishlist");
                 if (wishlistCookie != null) {
-                    wishlistItems = wishlistService.getWishlistFromCookie(wishlistCookie); // Sử dụng wishlistService
+                    wishlistItems = wishlistService.getWishlistFromCookie(wishlistCookie);
                 }
             } else {
                 wishlistItems = (List<ProductDTO>) session.getAttribute("WISHLIST");
             }
 
-            // Update session with cart and wishlist
+            // Cập nhật session với giỏ hàng và wishlist
             session.setAttribute("CART", cartItems);
             session.setAttribute("WISHLIST", wishlistItems);
 
@@ -339,14 +181,19 @@ public class DispatchServlet extends HttpServlet {
         processRequest(request, response);
     }
 
-    // Handle POST requests
+    /**
+     * Xử lý POST request
+     * Chuyển tiếp đến processRequest
+     */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         processRequest(request, response);
     }
 
-    // Servlet description
+    /**
+     * Trả về thông tin mô tả servlet
+     */
     @Override
     public String getServletInfo() {
         return "Main dispatch controller for clothing store";
